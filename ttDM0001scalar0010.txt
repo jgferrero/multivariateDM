@@ -1,0 +1,14 @@
+imax 1   number of channels
+jmax 9   number of backgrounds
+kmax 0   number of nuisance parameters
+------------
+
+bin 1
+observation  12247.00
+------------
+
+bin             1     		1   		1		1		1		1		1		1		1		1	  	
+process         DM  		TT		TTV		ST		DY  		WW		WZ		ZZ		Wg		HZ
+process         0		1   		2		3		4		5		6		7		8		9
+rate            334.38  	10310.79 	10.55  		630.69 		891.64 		225.22 		20.25 		6.52 		30.70 		0.77
+------------
