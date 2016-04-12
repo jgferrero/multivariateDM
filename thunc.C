@@ -10,48 +10,55 @@ const int goldberg =   9;  // number of muR/muF variations
 const int diabelli = 100;  // number of PDF variations
 const int nbbin    =  20;  // number of bins either "mll" or "mth" are divide in 
 
-void thunc2(TString sample);  // RECO computation
-void thunc3(TString sample);  // GEN computation
+
+//////////////  functions  /////////////////////////
+void thunc2(TString sample);
+float  GetRECO(TString sample);  // RECO computation
+float   GetGEN(TString sample);  // GEN computation
+////////////////////////////////////////////////////
 
 
-
-
+//////////////  main  //////////////////////
 void thunc(){
 
-  
-
-	// each of the three samples below exhibits a different behaviour before RECO computation: 
-	// VBFHToWWTo2L2Nu_M126 survives both protection mechanisms ("protection 1" and "protection 2")
-	// WWTo2L2Nu survives the first one but not the second
-	// WZ does not survive neither of them
-	// --------------------------------------------------------------------------------------------
-	//thunc2("VBFHToWWTo2L2Nu_M126"   );
 	//thunc2("WWTo2L2Nu"              );
-	//thunc2("WZ"                     );
-
-	thunc3("GluGluHToWWTo2L2Nu_M126");  // GEN computation
+	//thunc2("WZTo3LNu"               );
+	thunc2("GluGluHToWWTo2L2Nu_M126");
+	thunc2("VBFHToWWTo2L2Nu_M126"   );
 
 }
+////////////////////////////////////////////
 
 
-
-
+////////////////////////////////////////////
 void thunc2(TString sample){
 
+	float gen  =  GetGEN(sample);
+	float reco = GetRECO(sample);
 
-	TFile* file = new TFile( "<path-to-latino-trees>/latino_" + sample + ".root", "READ" ); 
+	cout << sample << "         -- xs = " << gen << "    -- acc = " << reco/gen << endl;  	
+
+}
+////////////////////////////////////////////
+
+
+////////////////////////////////////////////
+float GetRECO(TString sample){
+
+
+	TFile* file = new TFile( "/gpfs/csic_projects/tier3data/LatinosSkims/RunII/cernbox_76x/22Jan_25ns_mAODv2_MC__l2loose__hadd__bSFL2pTEff__l2tight/latino_" + sample + ".root", "READ" ); 
         /////////////////////////////////////////////////////////////////////////////////
 
 
 	// protection 1
 	bool TheHistoExists = false; 
 	TheHistoExists = file -> GetListOfKeys() -> Contains("mcWeightExplainedOrdered");
-	if ( TheHistoExists == false ) return; 
+	if ( TheHistoExists == false ) return -1; 
 
 	// protection 2
 	TH1F *histo = (TH1F*)file -> Get("mcWeightExplainedOrdered");
 	int nlabel = histo -> GetEntries(); 
-	if ( nlabel == 0 ) return; 
+	if ( nlabel == 0 ) return -1; 
         /////////////////////////////////////////////////////////////////////////////////
 
 
@@ -211,7 +218,7 @@ void thunc2(TString sample){
 	float RFup = abs(z_total[8] - z_total[0]) / z_total[0];
 	float RFdn = abs(z_total[4] - z_total[0]) / z_total[0];
 
-	cout << " sample: " << sample << "     PDF unc = " << 100*unc/mean << " %     renorm/fact-up unc = " << 100*RFup << " %     renorm/fact-down unc = " << 100*RFdn << " %" <<endl;
+	float quotient = z_total[8] / z_total[0];
 
 
 	// for PDF
@@ -228,8 +235,11 @@ void thunc2(TString sample){
 
 	float mean = m/diabelli; 
 	float unc  = sqrt(m2/diabelli - pow(mean, 2));
+	float recoup = mean + unc; 
+	//float quotient= recoup/mean;
 
-	//cout << " sample: " << sample << "     unc = " << 100*unc/mean << " %" << endl; 
+
+	return quotient; 
 
 
 	////////////////////
@@ -286,28 +296,28 @@ void thunc2(TString sample){
 	c -> SaveAs("../<plots-subdirectory>/" + sample + "_mth_ratio.eps");              */
  
 }  
+////////////////////////////////////////////
 
 
 
 
 
+////////////////////////////////////////////
+float GetGEN(TString sample){
 
-
-void thunc3(TString sample){
-
-	TFile* file = new TFile( "<path-to-latino-trees>/latino_" + sample + ".root", "READ" ); 
+	TFile* file = new TFile( "/gpfs/csic_projects/tier3data/LatinosSkims/RunII/cernbox_76x/22Jan_25ns_mAODv2_MC__l2loose__hadd__bSFL2pTEff__l2tight/latino_" + sample + ".root", "READ" ); 
         /////////////////////////////////////////////////////////////////////////////////
 
 
 	// protection 1
 	bool TheHistoExists = false; 
 	TheHistoExists = file -> GetListOfKeys() -> Contains("mcWeightExplainedOrdered");
-	if ( TheHistoExists == false ) return; 
+	if ( TheHistoExists == false ) return -1.; 
 
 	// protection 2
 	TH1F *histo = (TH1F*)file -> Get("mcWeightExplainedOrdered");
 	int nlabel = histo -> GetEntries(); 
-	if ( nlabel == 0 ) return; 
+	if ( nlabel == 0 ) return -1.; 
         /////////////////////////////////////////////////////////////////////////////////
 
 
@@ -368,16 +378,12 @@ void thunc3(TString sample){
 
 	// displaying some results... 	
 
-	// for QCD... 
+	// for QCD...
 
-	cout << "            " << endl; 
-	cout << "the QCD...  " << endl; 
+	float RFup = abs(z_total[8] - z_total[0]) / z_total[0];
+	float RFdn = abs(z_total[4] - z_total[0]) / z_total[0];
 
-	for( int a = 0; a < goldberg; a++ ){
-
-		cout << a + 1 << " -- " <<z_total[a] << endl;
-
-	}
+	float quotient = z_total[8] / z_total[0];
 
 
 	// for PDF
@@ -394,8 +400,10 @@ void thunc3(TString sample){
 
 	float mean = m/diabelli; 
 	float unc  = sqrt(m2/diabelli - pow(mean, 2));
+	float genup= mean + unc;
+	//float quotient = genup/mean;
 
-	cout << " sample: " << sample << "     mean = " << mean << "     unc = " << 100*unc/mean << " %" << endl; 
+	return quotient;
 	
 }
-
+////////////////////////////////////////////
