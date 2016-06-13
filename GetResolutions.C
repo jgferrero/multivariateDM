@@ -32,46 +32,47 @@ const float a = 0.5346                ;
 const float b = 0.2166                ; 
 const float c = 2 * sqrt( 2 * log(2) ); 
 
-const float maxpT = 70; 
-const int width = 5; 
-float _up = 0; 
-
 enum{ parall, transv, nvariable };
-enum{ dat, QCD, TTGJets, WG, WJets, ZGJets, nprocess}; 
+enum{ pT, sumET, NVtx, nparameter};
+enum{ dat, GJets, QCD, TTGJets, WG, WJets, ZGJets, nprocess}; 
+const int HowManyBkgs = 2;   // provisional
 
-TString processID [nprocess] ; 
-TString variableID[nvariable];
-float xs[nprocess]; 
+float          xs[nprocess]; 
+TString processID[nprocess];
+ 
+TString variableID     [nvariable];
+TString variableIDfancy[nvariable];
+TString yTitle         [nvariable];
 
-TH1F* h_resol[nvariable][nprocess];
+TString parameterID[nparameter];
 
+float maxpT    = 800.; float minpT    = 0.; const int nbinpT    = 20; float _uppT   ;
+float maxsumET =3000.; float minsumET = 0.; const int nbinsumET = 30; float _upsumET;  
+float maxNVtx  =  40.; float minNVtx  = 0.; const int nbinNVtx  =  8; float _upNVtx ;
 
+/*float maxpT    = 200.; float minpT    = 0.; const int nbinpT    =  5; float _uppT   ;
+float maxsumET = 300.; float minsumET = 0.; const int nbinsumET =  5; float _upsumET;  
+float maxNVtx  =  20.; float minNVtx  = 0.; const int nbinNVtx  =  5; float _upNVtx ;*/
 
-double GetFWHM     ( double sigma, double gamma                                                                               );
-double GetFWHMerror( double sigma, double gamma, double esigma, double egamma, double Vss, double Vsg, double Vgs, double Vgg );
-void   GetHistograms(); 
-void GetHistogram( int process );
-void GetResolution();
+const int aa = nvariable;   // just for next block
+const int bb = nprocess ;   // just for next block
+
+TH1F* h_resol_pT   [aa][bb][nbinpT   ];
+TH1F* h_resol_sumET[aa][bb][nbinsumET];
+TH1F* h_resol_NVtx [aa][bb][nbinNVtx ]; 
+
+const int GJetsMC = false;
+
+double GetFWHM      ( double sigma, double gamma                                                                               );
+double GetFWHMerror ( double sigma, double gamma, double esigma, double egamma, double Vss, double Vsg, double Vgs, double Vgg );
+void   GetHistograms(                                                                                                          );
+void   GetHistogram ( int process                                                                                              );
+void GetResolution  (int whichvar, int parameter, int ibin, float& resol, float& eresol, float& chichi                         );
 
 void GetResolutions(){
 
-	//int nbin = maxpT/width; 
- 
-	//float output[2][nbin];
-
-	//for( int i = 0; i < nbin; i++ ){
-
-	//	_up = ( i + 1 ) * width;
-
-		GetResolution();
-
-	//}
-
-}
-
-void GetResolution(){
-
 	processID[dat    ] = "data"    ; 
+	processID[GJets  ] = "GJets"   ; 
 	processID[QCD    ] = "QCD"     ; 
 	processID[TTGJets] = "TTGJets" ; 
 	processID[WG     ] = "WG"      ;
@@ -79,46 +80,245 @@ void GetResolution(){
 	processID[ZGJets ] = "ZGJets"  ; 
 
 	// https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns
+	xs[GJets  ] = 20790 + 9238 + 2305 + 274.4 + 93.46; 
 	xs[QCD    ] = 27990000 + 1712000 + 347700 + 32100 + 6831 + 1207 + 119.9 + 25.24;
 	xs[TTGJets] =     3.967;
 	xs[WG     ] =   405.271;
 	xs[WJets  ] = 61526.7  ;
-	//xs[ZGJets ] = ;
+	//xs[ZGJets ] = ? ;
 
 	variableID[parall] = "parallel"  ; 
 	variableID[transv] = "transverse"; 
+
+	variableIDfancy[parall] = "u_{||}+q_{T}"; 
+	variableIDfancy[transv] = "u_{#perp}"   ; 
+
+	yTitle[parall] = "#sigma(u_{||}) [GeV]"   ;
+	yTitle[transv] = "#sigma(u_{#perp}) [GeV]";
+
+	parameterID[pT   ] = "pT"   ;
+	parameterID[sumET] = "sumET";
+	parameterID[NVtx ] = "NVtx" ;
+
+	GetHistograms();
+
+	cout << "    histograms loaded !!! " << endl;
+
+	for( int j = 2; j < HowManyBkgs+2 ; j++ ){
+
+		for( int i = 0; i < nbinpT; i++ ){
+
+			h_resol_pT[parall][j][i] -> Scale( xs[j]/h_resol_pT[parall][j][i]->Integral() );
+			h_resol_pT[transv][j][i] -> Scale( xs[j]/h_resol_pT[transv][j][i]->Integral() );
+
+			//if( j > 2 )  h_resol[parall][QCD][] -> Add( h_resol[parall][j][] );
+
+		}
+
+		for( int i = 0; i < nbinsumET; i++ ){
+
+			h_resol_sumET[parall][j][i] -> Scale( xs[j]/h_resol_sumET[parall][j][i]->Integral() );
+			h_resol_sumET[transv][j][i] -> Scale( xs[j]/h_resol_sumET[transv][j][i]->Integral() );
+
+			//if( j > 2 )  h_resol[parall][QCD][] -> Add( h_resol[parall][j][] );
+
+		}
+
+		for( int i = 0; i < nbinNVtx; i++ ){
+
+			h_resol_NVtx[parall][j][i] -> Scale( xs[j]/h_resol_NVtx[parall][j][i]->Integral() );
+			h_resol_NVtx[transv][j][i] -> Scale( xs[j]/h_resol_NVtx[transv][j][i]->Integral() );
+
+			//if( j > 2 )  h_resol[parall][QCD][] -> Add( h_resol[parall][j][] );
+
+		}
+
+	}
+
+
+
+	float outputpT   [4][nbinpT   ]; float xpT   [nbinpT   ]; float ypT   [nbinpT   ]; float epT   [nbinpT   ]; float chi2pT   [nbinpT   ];
+	float outputsumET[4][nbinsumET]; float xsumET[nbinsumET]; float ysumET[nbinsumET]; float esumET[nbinsumET]; float chi2sumET[nbinsumET];
+	float outputNVtx [4][nbinNVtx ]; float xNVtx [nbinNVtx ]; float yNVtx [nbinNVtx ]; float eNVtx [nbinNVtx ]; float chi2NVtx [nbinNVtx ];
+
+	for( int k = 0; k < nvariable; k++){
+
+		for( int i = 0; i < nbinpT; i++ ){
+
+			xpT[i] = minpT + (1.0*i+0.5)*(maxpT-minpT)/nbinpT;  cout << xpT[i] << endl;
+
+			GetResolution( k, 1, i, ypT[i],    epT[i],    chi2pT[i]    );
+
+		}
+
+		for( int i = 0; i < nbinsumET; i++ ){
+
+			xsumET[i] = minsumET + (1.0*i+0.5)*(maxsumET-minsumET)/nbinsumET;  
+			xsumET[i] = xsumET[i]/1000;  
+
+			GetResolution( k, 2, i, ysumET[i], esumET[i], chi2sumET[i] );
+
+		}
+
+		for( int i = 0; i < nbinNVtx; i++ ){
+
+			xNVtx[i] = minNVtx + (1.0*i+0.5)*(maxNVtx-minNVtx)/nbinNVtx;
+
+			GetResolution( k, 3, i, yNVtx[i],  eNVtx[i],  chi2NVtx[i]  );
+
+		}
+
+
+
+		TGraphErrors* graphpT    = new TGraphErrors(nbinpT   , xpT   , ypT   , 0, epT    );
+		TGraphErrors* graphsumET = new TGraphErrors(nbinsumET, xsumET, ysumET, 0, esumET );
+		TGraphErrors* graphNVtx  = new TGraphErrors(nbinNVtx , xNVtx , yNVtx , 0, eNVtx  );
+
+		graphpT    -> SetTitle("");
+		graphsumET -> SetTitle("");
+		graphNVtx  -> SetTitle("");
+
+		graphpT    -> GetXaxis()->SetTitle("#gamma q_{T} [GeV]");
+		graphsumET -> GetXaxis()->SetTitle("#Sigma E_{T} [TeV]");
+		graphNVtx  -> GetXaxis()->SetTitle("number of vertices");
+
+		graphpT    -> GetYaxis()->SetTitle(yTitle[k]);
+		graphsumET -> GetYaxis()->SetTitle(yTitle[k]);
+		graphNVtx  -> GetYaxis()->SetTitle(yTitle[k]);
+
+		graphpT    -> SetMarkerStyle(21);
+		graphsumET -> SetMarkerStyle(21);
+		graphNVtx  -> SetMarkerStyle(21);
+
+		graphpT    -> SetMarkerColor(kGreen+3);
+		graphsumET -> SetMarkerColor(kGreen+3);
+		graphNVtx  -> SetMarkerColor(kGreen+3);
+
+		graphpT    -> SetLineColor(kGreen+3);
+		graphsumET -> SetLineColor(kGreen+3);
+		graphNVtx  -> SetLineColor(kGreen+3);
+
+
+
+		TLatex tex;
+		tex.SetTextAlign(13);
+		tex.SetTextSize(0.03);
+		tex.SetNDC();
+
+		TCanvas* cpT = new TCanvas("cpT", "cpT", 600, 600);
+
+		graphpT -> Draw("AP");
+
+		tex.DrawLatex ( 0.1, 0.95, "CMS Preliminary                     2.318 fb^{-1} (13TeV)" );
+
+		cpT -> SaveAs("resol/" + variableID[k] + "_pT.pdf"); 
+		cpT -> SaveAs("resol/" + variableID[k] + "_pT.png"); 
+
+
+		TCanvas* csumET = new TCanvas("csumET", "csumET", 600, 600);
+
+		graphsumET -> Draw("AP");
+
+		tex.DrawLatex ( 0.1, 0.95, "CMS Preliminary                     2.318 fb^{-1} (13TeV)" );
+
+		csumET -> SaveAs("resol/" + variableID[k] + "_sumET.pdf");
+		csumET -> SaveAs("resol/" + variableID[k] + "_sumET.png");
+
+
+		TCanvas* cNVtx = new TCanvas("cNVtx", "cNVtx", 600, 600);
+
+		graphNVtx -> Draw("AP");
+
+		tex.DrawLatex ( 0.1, 0.95, "CMS Preliminary                     2.318 fb^{-1} (13TeV)" );
+
+		cNVtx -> SaveAs("resol/" + variableID[k] + "_NVtx.pdf");
+		cNVtx -> SaveAs("resol/" + variableID[k] + "_NVtx.png");
+
+
+
+	}
+
+}
+
+
+void GetResolution(int whichvar, int parameter, int ibin, float& resol, float& eresol, float& chichi){
+
+	int k = whichvar; 
+
 
 	RooRealVar x           ( "variable"   , "variable"          ,  0  , -500, 500 );   // random variable; redefine its range
 	RooRealVar Gauss_mean  ( "Gauss_mean" , "Gauss mean"        ,  0  ,  -10, 10  );  
 	RooRealVar BW_gamma    ( "BW_gamma"   , "Breit-Wigner gamma",  2.3,    0, 100 );  
 	RooRealVar Gauss_sigma ( "Gauss_sigma", "Gauss sigma"       , 10  ,    0, 100 );  
 
-	GetHistograms();
 
-	for( int j = 1; j < 3 ; j++ ){
+	TH1F* h1;
+	TH1F* h2; 
+	TH1F* h3;
 
-		h_resol[parall][j] -> Scale( xs[j]/h_resol[parall][j]->Integral() );
+	int min; int width; 
 
-		if( j > 1 )  h_resol[parall][QCD] -> Add( h_resol[parall][j] );
+	if( parameter == 1 ){
+
+		h1 = (TH1F*)  h_resol_pT[k][dat  ][ibin] -> Clone();
+		h2 = (TH1F*)  h_resol_pT[k][QCD  ][ibin] -> Clone();
+		h3 = (TH1F*)  h_resol_pT[k][GJets][ibin] -> Clone();
+
+		min = minpT; 
+		width = (maxpT - minpT)/nbinpT; 
+
 	}
- 
+
+	if( parameter == 2 ){
+
+		h1 = (TH1F*)  h_resol_sumET[k][dat  ][ibin] -> Clone();
+		h2 = (TH1F*)  h_resol_sumET[k][QCD  ][ibin] -> Clone();
+		h3 = (TH1F*)  h_resol_sumET[k][GJets][ibin] -> Clone();
+
+		min = minsumET; 
+		width = (maxsumET - minsumET)/nbinsumET; 
+
+	}
+
+	if( parameter == 3 ){
+
+		h1 = (TH1F*)  h_resol_NVtx[k][dat  ][ibin] -> Clone();
+		h2 = (TH1F*)  h_resol_NVtx[k][QCD  ][ibin] -> Clone();
+		h3 = (TH1F*)  h_resol_NVtx[k][GJets][ibin] -> Clone();
+
+		min = minNVtx; 
+		width = (maxNVtx - minNVtx)/nbinNVtx; 
+
+	}
+
+	int low = min + ibin*width; cout << low << endl;
+	int up  = low + width; 
+
 	// convert TH1F to RooDataHist
-	RooDataHist data ( "data", "data"      , x,  h_resol[parall][dat] ); 
-	RooDataHist bckg ( "bkg" , "background", x,  h_resol[parall][QCD] ); 
+	RooDataHist  data( "data" , "data"      , x,  h1 ); 
+	RooDataHist  bckg( "bkg"  , "background", x,  h2 );
+	RooDataHist gjets( "gjets", "gammajets" , x,  h3 );
+
 
 	// convert  RooDataHist into template (PDF)
-	RooHistPdf bkgpdf ( "bkgpdf", "bkgpdf", x, bckg );
+	RooHistPdf bkgpdf  ( "bkgpdf"  , "bkgpdf"  , x, bckg  );
+	RooHistPdf gjetspdf( "gjetspdf", "gjetspdf", x, gjets );
 
 	// pure PDF (do not import signal, but recreate it)
 	RooVoigtian voigt ("", "", x, Gauss_mean, BW_gamma, Gauss_sigma ); 
-	
+
 	// fraction 
 	RooRealVar fbkg( "fbkg", "bkg fraction", 0.5, 0., 1. );
 
 	// model = (1-f)*voigt + f*bkg 
-	RooAddPdf model( "model", "model", RooArgList( voigt, bkgpdf ), fbkg);
+	RooAddPdf modelA( "modelA", "modelB", RooArgList( voigt   , bkgpdf ), fbkg); 
+	RooAddPdf modelB( "modelB", "modelB", RooArgList( gjetspdf, bkgpdf ), fbkg); 
 
-	RooFitResult* result = model.fitTo( data, Extended(kFALSE), RooFit::Save(kTRUE) );   
+
+	RooFitResult* result; 
+
+	if( GJetsMC == false ) result = modelA.fitTo( data, Extended(kFALSE), RooFit::Save(kTRUE) );   
+	if( GJetsMC == true  ) result = modelB.fitTo( data, Extended(kFALSE), RooFit::Save(kTRUE) );   
 
 	// --------  -------  -------  -------  -------  -------  -------  -------  ------- 
 
@@ -131,30 +331,40 @@ void GetResolution(){
  	double FWHM  = GetFWHM     (sigma, gamma                                    );
   	double eFWHM = GetFWHMerror(sigma, gamma, esigma, egamma, Vss, Vsg, Vgs, Vgg);
 
-  	//cout << "  -- sigma " <<  sigma << endl;
-  	//cout << "  -- gamma " <<  gamma << endl;
-
-	cout << "                                     " << endl; 
-	cout << "                                     " << endl; 
-	cout << "                                     " << endl; 
-	cout << _up << " GeV -> FWHM = "  << FWHM << " +/- " << eFWHM << endl;   
-	cout << "                                     " << endl; 
-	cout << "                                     " << endl; 
-	cout << "                                     " << endl; 
-
+	resol  =  FWHM/2.3546;
+	eresol = eFWHM/2.3546;
+ 
 	// --------  -------  -------  -------  -------  -------  -------  -------  ------- 
 
-	RooPlot* frame = x.frame( Title("mytitle") );
+	TCanvas* mycanvas = new TCanvas("c", "c", 600, 600);
 
-        frame -> GetXaxis() -> SetRangeUser( -200, 200 );
+	RooPlot* frame = x.frame( Title(" ") );
+
+	frame -> GetXaxis() -> SetRangeUser( -200, 200 );
+
+	frame -> GetXaxis() -> SetTitle(variableIDfancy[k]);
 
 	data.plotOn( frame );
 
-        model.plotOn( frame, Components(bkgpdf), LineColor(kRed)  , LineStyle(kDashed), FillColor(kRed)    , DrawOption("F") );
+	modelA.plotOn( frame, Components(bkgpdf), LineColor(kRed)  , LineStyle(kDashed), FillColor(kRed)  , DrawOption("F") );
 
-        model.plotOn( frame, Components(voigt) , LineColor(kGreen), LineStyle(kDashed), FillColor(kGreen+1), DrawOption("L") );
+	modelA.plotOn( frame, Components(voigt) , LineColor(kGreen), LineStyle(kDashed), FillColor(kGreen), DrawOption("L") );
+
+	modelA.plotOn( frame,                     LineColor(kBlue) , LineStyle(kDashed), FillColor(kBlue) , DrawOption("L") );
 
 	frame -> Draw();
+
+	float chi2 = frame -> chiSquare();
+	chichi = chi2; 
+
+	TLatex mylatex;
+	mylatex.SetTextAlign(13);
+	mylatex.SetTextSize(0.03);
+	mylatex.SetNDC();
+	mylatex.DrawLatex ( 0.1, 0.95, Form("CMS Preliminary  2.318 fb^{-1} (13TeV)   #chi^{2} = %5.2f", chi2) );
+
+	mycanvas -> SaveAs( Form( "fit/" + variableID[k] + "_" + parameterID[parameter-1] + "_%dto%d.pdf", low, up ) );
+	mycanvas -> SaveAs( Form( "fit/" + variableID[k] + "_" + parameterID[parameter-1] + "_%dto%d.png", low, up ) );
 }
 
  
@@ -166,6 +376,7 @@ double GetFWHM( double sigma, double gamma ){
   	return a * BW_FWHM + sqrt ( b * pow( BW_FWHM, 2 ) + pow( Gauss_FWHM, 2 ) );
 
 }
+
 
 double GetFWHMerror( double sigma, double gamma, double esigma, double egamma, double Vss, double Vsg, double Vgs, double Vgg ){
 
@@ -187,22 +398,23 @@ double GetFWHMerror( double sigma, double gamma, double esigma, double egamma, d
 
 }
 
+
+
 void GetHistograms(){
 
 	//for( int j = 0; j < nprocess; j++ ){
-	for( int j = 0; j < 3; j++ ){
+	for( int j = 0; j < HowManyBkgs+2; j++ ){
 
 		GetHistogram( j );
+
+		//cout << j << " success  " << endl;
 
 	}
 
 }
 
+
 void GetHistogram( int process ){
-
-	//TFile* file = new TFile( "/gpfs/csic_projects/cms/jgarciaf/MVA/latino_" + processID[j] + ".root", "READ" );
-
-	//TTree *tree = (TTree*) file -> Get( "latino" );
 
 	TChain* tree = new TChain("latino");
 
@@ -249,6 +461,29 @@ void GetHistogram( int process ){
 		tree -> Add( path + "SinglePhoton_06__part0.root" );
 		tree -> Add( path + "SinglePhoton_06__part1.root" );
 		tree -> Add( path + "SinglePhoton_06__part2.root" );
+
+	}
+
+	else if( process == GJets){
+
+		tree -> Add( path + "GJets40To100__part1.root"  ); 
+		tree -> Add( path + "GJets40To100__part2.root"  ); 
+
+		tree -> Add( path + "GJets100To200__part0.root" );
+		tree -> Add( path + "GJets100To200__part1.root" );
+		tree -> Add( path + "GJets100To200__part2.root" );
+ 
+		tree -> Add( path + "GJets200To400__part0.root" ); 
+		tree -> Add( path + "GJets200To400__part1.root" ); 
+		tree -> Add( path + "GJets200To400__part2.root" ); 
+		tree -> Add( path + "GJets200To400__part3.root" ); 
+		tree -> Add( path + "GJets200To400__part4.root" ); 
+
+		tree -> Add( path + "GJets400To600__part0.root" ); 
+		tree -> Add( path + "GJets400To600__part1.root" ); 
+
+		tree -> Add( path + "GJets600ToInf__part0.root" ); 
+		tree -> Add( path + "GJets600ToInf__part1.root" ); 
 
 	}
 
@@ -337,7 +572,6 @@ void GetHistogram( int process ){
 
 	}
 
-
 	else if( process == ZGJets ){
 
 		tree -> Add( path + "ZNuNuGJets.root"  ); 
@@ -351,41 +585,64 @@ void GetHistogram( int process ){
 
 	}
 
-	
-	float baseW        ; 
-	float metPfType1   ;
-	float metPfType1Phi; 
+
+	float metPfType1     ;
+	float metPfType1Phi  ;
+	float metPfType1SumEt;
+	float nvtx           ;
 	
 	vector<float> *std_vector_photon_pt;  std_vector_photon_pt  = 0;
 	vector<float> *std_vector_photon_phi; std_vector_photon_phi = 0;
 
 
-	tree -> SetBranchAddress( "baseW"                , &baseW                 );
 	tree -> SetBranchAddress( "metPfType1"           , &metPfType1            );
 	tree -> SetBranchAddress( "metPfType1Phi"        , &metPfType1Phi         );
 	tree -> SetBranchAddress( "std_vector_photon_pt" , &std_vector_photon_pt  );
 	tree -> SetBranchAddress( "std_vector_photon_phi", &std_vector_photon_phi );
+	tree -> SetBranchAddress( "metPfType1SumEt"      , &metPfType1SumEt       );
+	tree -> SetBranchAddress( "nvtx"                 , &nvtx                  );
 
 
 	for( int i = 0; i < nvariable; i++ ){
 
-			h_resol[i][process] = new TH1F( "h_resol_" + variableID[i] + "_" + processID[process], "resolution", 400, -200, 200 );
+		for( int k = 0; k < nbinpT; k++ ){
+
+			h_resol_pT   [i][process][k] = new TH1F( Form("h_resol_pT_"    + variableID[i] + "_" + processID[process] + "_%d", k), "resolution pT"        , 80, -200, 200 );
+
+		}
+
+		for( int k = 0; k < nbinsumET; k++ ){
+
+			h_resol_sumET[i][process][k] = new TH1F( Form("h_resol_sumET_" + variableID[i] + "_" + processID[process] + "_%d", k), "resolution sum ET"    , 80, -200, 200 );
+
+		}
+
+		for( int k = 0; k < nbinNVtx; k++ ){
+
+			h_resol_NVtx [i][process][k] = new TH1F( Form("h_resol_NVtx_"  + variableID[i] + "_" + processID[process] + "_%d", k), "resolution num of vtx", 80, -200, 200 );
+
+		}
 
 	}
 
+	int nentries = tree -> GetEntries(); 
 
-	int nentries = tree -> GetEntries();
-
-	if ( nentries > 3000 ) nentries = 3000; 
-
+	if ( process == dat                    ) nentries = 200000; 
+	if ( process != dat && nentries > 50000) nentries =  50000; 
 
 	for ( Long64_t ievt = 0; ievt < nentries; ievt++ ) {
 
 		tree -> GetEntry(ievt);	
 
-		if ( std_vector_photon_pt->at(0) != 0 ) {
+		float photonpT = std_vector_photon_pt->at(0);
 
-			//if ( std_vector_photon_pt->at(0) < ( _up - width ) || std_vector_photon_pt->at(0) > _up ) continue; 	
+		if ( photonpT > 0 ) {
+
+			if( photonpT >= maxpT || metPfType1SumEt >= maxsumET || nvtx >= maxNVtx) continue;
+
+			int l = floor(    nbinpT    * (photonpT        - minpT   ) / (maxpT    - minpT   )    ); //cout << l << endl;
+			int m = floor(    nbinsumET * (metPfType1SumEt - minsumET) / (maxsumET - minsumET)    ); //cout << m << endl;
+			int n = floor(    nbinNVtx  * (nvtx            - minNVtx ) / (maxNVtx  - minNVtx )    ); //cout << n << endl;
 
 			TVector2 qT, ET, uT; 
 
@@ -397,22 +654,28 @@ void GetHistogram( int process ){
 
 			TVector2 u_parallel = uT.Proj(qT); //cout << qT.DeltaPhi(u_parallel) << endl; 
 			
-			float u_parall; ( qT.Mod() > u_parallel.Mod() )   ?   u_parall = (qT+u_parallel).Mod()   :   u_parall = -1* (qT+u_parallel).Mod();   // cout << u_parall << endl;
+			float u_parall; ( qT.Mod() > u_parallel.Mod() )   ?   u_parall = (qT+u_parallel).Mod()                                    :   u_parall = -1* (qT+u_parallel).Mod();   // cout << u_parall << endl;
 
-			float u_transv = sqrt( pow( uT.Mod(), 2) - pow( u_parallel.Mod(), 2) );
+			float u_transv; ( qT.Mod() > u_parallel.Mod() )   ?   u_transv = sqrt( pow( uT.Mod(), 2) - pow( u_parallel.Mod(), 2) )    :   u_transv = -1* sqrt( pow( uT.Mod(), 2) - pow( u_parallel.Mod(), 2) );
 
-				h_resol[parall][process] -> Fill( u_parall ); 
-				h_resol[transv][process] -> Fill( u_transv );			
+			h_resol_pT   [parall][process][l] -> Fill( u_parall ); 
+			h_resol_pT   [transv][process][l] -> Fill( u_transv );	
+
+			h_resol_sumET[parall][process][m] -> Fill( u_parall ); 
+			h_resol_sumET[transv][process][m] -> Fill( u_transv );
+
+			h_resol_NVtx [parall][process][n] -> Fill( u_parall );
+			h_resol_NVtx [transv][process][n] -> Fill( u_transv );	
+
 
 		}
 
+
 	}
-
-
-	//cout << _up << endl; 
 
 	//TCanvas* c = new TCanvas( "mycanvas", "mycanvas", 600, 600 );
 
 	//h_resol[parall][process] -> Draw();
 
 }
+
