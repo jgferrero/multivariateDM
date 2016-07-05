@@ -27,6 +27,15 @@
 
 using namespace RooFit;
 
+const bool SkipFit = true; 
+
+//int TrueEntriesData; 
+
+const bool RunOverAllData = false; 
+const int MaxEntriesData  = 100000;
+const int MaxEntriesMC    = 200000;
+
+const int GJetsMC = false;
 
 const float a = 0.5346                ; 
 const float b = 0.2166                ; 
@@ -34,11 +43,12 @@ const float c = 2 * sqrt( 2 * log(2) );
 
 enum{ parall, transv, nvariable };
 enum{ pT, sumET, NVtx, nparameter};
-enum{ dat, GJets, QCD, TTGJets, WG, WJets, ZGJets, nprocess}; 
-const int HowManyBkgs = 2;   // provisional
+enum{ dat, GJets, QCD, TTGJets, WJets, ZGJets, WG, nprocess}; 
+const int HowManyBkgs = 3;   // provisional  // ideally, HowManyBkgs = 5
 
-float          xs[nprocess]; 
-TString processID[nprocess];
+float          xs   [nprocess]; 
+TString processID   [nprocess];
+TColor  processcolor[nprocess];
  
 TString variableID     [nvariable];
 TString variableIDfancy[nvariable];
@@ -46,7 +56,7 @@ TString yTitle         [nvariable];
 
 TString parameterID[nparameter];
 
-float maxpT    = 800.; float minpT    = 0.; const int nbinpT    = 20; float _uppT   ;
+float maxpT    = 300.; float minpT    =50.; const int nbinpT    = 25; float _uppT   ;
 float maxsumET =3000.; float minsumET = 0.; const int nbinsumET = 30; float _upsumET;  
 float maxNVtx  =  40.; float minNVtx  = 0.; const int nbinNVtx  =  8; float _upNVtx ;
 
@@ -57,27 +67,28 @@ float maxNVtx  =  20.; float minNVtx  = 0.; const int nbinNVtx  =  5; float _upN
 const int aa = nvariable;   // just for next block
 const int bb = nprocess ;   // just for next block
 
-TH1F* h_resol_pT   [aa][bb][nbinpT   ];
-TH1F* h_resol_sumET[aa][bb][nbinsumET];
-TH1F* h_resol_NVtx [aa][bb][nbinNVtx ]; 
-
-const int GJetsMC = false;
+TH1F*    h_global     [aa][bb]           ;
+THStack* s_global     [aa]               ;
+TH1F*    h_resol_pT   [aa][bb][nbinpT   ];
+TH1F*    h_resol_sumET[aa][bb][nbinsumET];
+TH1F*    h_resol_NVtx [aa][bb][nbinNVtx ]; 
 
 double GetFWHM      ( double sigma, double gamma                                                                               );
 double GetFWHMerror ( double sigma, double gamma, double esigma, double egamma, double Vss, double Vsg, double Vgs, double Vgg );
 void   GetHistograms(                                                                                                          );
 void   GetHistogram ( int process                                                                                              );
-void GetResolution  (int whichvar, int parameter, int ibin, float& resol, float& eresol, float& chichi                         );
+void GetResolution  ( int whichvar, int parameter, int ibin, float& resol, float& eresol, float& chichi                        );
+void GetGlobalPlots (                                                                                                          );
 
 void GetResolutions(){
 
 	processID[dat    ] = "data"    ; 
-	processID[GJets  ] = "GJets"   ; 
-	processID[QCD    ] = "QCD"     ; 
-	processID[TTGJets] = "TTGJets" ; 
-	processID[WG     ] = "WG"      ;
- 	processID[WJets  ] = "WJets"   ; 
-	processID[ZGJets ] = "ZGJets"  ; 
+	processID[GJets  ] = "GJets"   ;  //processcolor[GJets  ] = kYellow ;
+	processID[QCD    ] = "QCD"     ;  //processcolor[QCD    ] = kSpring ;
+	processID[TTGJets] = "TTGJets" ;  //processcolor[TTGJets] = kRed    ;
+	processID[WG     ] = "WG"      ;  //processcolor[WG     ] = kCyan   ;
+ 	processID[WJets  ] = "WJets"   ;  //processcolor[WJets  ] = kViolet ;
+	processID[ZGJets ] = "ZGJets"  ;  //processcolor[ZGJets ] = kMagenta;
 
 	// https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns
 	xs[GJets  ] = 20790 + 9238 + 2305 + 274.4 + 93.46; 
@@ -100,7 +111,11 @@ void GetResolutions(){
 	parameterID[sumET] = "sumET";
 	parameterID[NVtx ] = "NVtx" ;
 
-	GetHistograms();
+	GetHistograms();  
+
+	GetGlobalPlots();
+
+	if( SkipFit == true ) return;
 
 	cout << "    histograms loaded !!! " << endl;
 
@@ -111,7 +126,7 @@ void GetResolutions(){
 			h_resol_pT[parall][j][i] -> Scale( xs[j]/h_resol_pT[parall][j][i]->Integral() );
 			h_resol_pT[transv][j][i] -> Scale( xs[j]/h_resol_pT[transv][j][i]->Integral() );
 
-			//if( j > 2 )  h_resol[parall][QCD][] -> Add( h_resol[parall][j][] );
+			if( j > 2 )  h_resol_pT[parall][QCD][i] -> Add( h_resol_pT[parall][j][i] );
 
 		}
 
@@ -120,7 +135,7 @@ void GetResolutions(){
 			h_resol_sumET[parall][j][i] -> Scale( xs[j]/h_resol_sumET[parall][j][i]->Integral() );
 			h_resol_sumET[transv][j][i] -> Scale( xs[j]/h_resol_sumET[transv][j][i]->Integral() );
 
-			//if( j > 2 )  h_resol[parall][QCD][] -> Add( h_resol[parall][j][] );
+			if( j > 2 )  h_resol_sumET[parall][QCD][i] -> Add( h_resol_sumET[parall][j][i] );
 
 		}
 
@@ -129,23 +144,21 @@ void GetResolutions(){
 			h_resol_NVtx[parall][j][i] -> Scale( xs[j]/h_resol_NVtx[parall][j][i]->Integral() );
 			h_resol_NVtx[transv][j][i] -> Scale( xs[j]/h_resol_NVtx[transv][j][i]->Integral() );
 
-			//if( j > 2 )  h_resol[parall][QCD][] -> Add( h_resol[parall][j][] );
+			if( j > 2 )  h_resol_NVtx[parall][QCD][i] -> Add( h_resol_NVtx[parall][j][i] );
 
 		}
 
 	}
 
+	float xpT   [nbinpT   ]; float ypT   [nbinpT   ]; float epT   [nbinpT   ]; float chi2pT   [nbinpT   ];
+	float xsumET[nbinsumET]; float ysumET[nbinsumET]; float esumET[nbinsumET]; float chi2sumET[nbinsumET];
+	float xNVtx [nbinNVtx ]; float yNVtx [nbinNVtx ]; float eNVtx [nbinNVtx ]; float chi2NVtx [nbinNVtx ];
 
-
-	float outputpT   [4][nbinpT   ]; float xpT   [nbinpT   ]; float ypT   [nbinpT   ]; float epT   [nbinpT   ]; float chi2pT   [nbinpT   ];
-	float outputsumET[4][nbinsumET]; float xsumET[nbinsumET]; float ysumET[nbinsumET]; float esumET[nbinsumET]; float chi2sumET[nbinsumET];
-	float outputNVtx [4][nbinNVtx ]; float xNVtx [nbinNVtx ]; float yNVtx [nbinNVtx ]; float eNVtx [nbinNVtx ]; float chi2NVtx [nbinNVtx ];
-
-	for( int k = 0; k < nvariable; k++){
+	for( int k = 0; k < 1; k++){
 
 		for( int i = 0; i < nbinpT; i++ ){
 
-			xpT[i] = minpT + (1.0*i+0.5)*(maxpT-minpT)/nbinpT;  cout << xpT[i] << endl;
+			xpT[i] = minpT + (1.0*i+0.5)*(maxpT-minpT)/nbinpT;  //cout << xpT[i] << endl;
 
 			GetResolution( k, 1, i, ypT[i],    epT[i],    chi2pT[i]    );
 
@@ -186,6 +199,8 @@ void GetResolutions(){
 		graphsumET -> GetYaxis()->SetTitle(yTitle[k]);
 		graphNVtx  -> GetYaxis()->SetTitle(yTitle[k]);
 
+		graphpT    -> GetYaxis()->SetRangeUser(0.0, 40.0);
+
 		graphpT    -> SetMarkerStyle(21);
 		graphsumET -> SetMarkerStyle(21);
 		graphNVtx  -> SetMarkerStyle(21);
@@ -197,8 +212,6 @@ void GetResolutions(){
 		graphpT    -> SetLineColor(kGreen+3);
 		graphsumET -> SetLineColor(kGreen+3);
 		graphNVtx  -> SetLineColor(kGreen+3);
-
-
 
 		TLatex tex;
 		tex.SetTextAlign(13);
@@ -238,6 +251,72 @@ void GetResolutions(){
 
 	}
 
+}
+
+void GetGlobalPlots(){
+
+	//if( RunOverAllData == false ) { cout << "   >>  EH, RunOverAllData is deactivated !!!   " << endl;  return; }
+
+	int TrueEntriesData = h_global[0][dat] -> Integral();
+
+	cout << "TrueEntriesData = " << TrueEntriesData << endl;
+
+	float weight[nprocess]; 
+
+	float TotalXs = 0; 
+
+	for( int j = 1; j < HowManyBkgs+2 ; j++ ){
+
+		if ( h_global[0][j]->Integral() == 0 ) continue;
+
+		weight[j] = xs[j]/h_global[0][j]->Integral();
+
+		TotalXs = TotalXs + xs[j];  
+
+	}
+
+	float TheFactor = TrueEntriesData / TotalXs ;  cout << "TheFactor = " << TheFactor << endl;
+
+	s_global[parall]  = new THStack( variableID[parall], variableID[parall] );
+	s_global[transv]  = new THStack( variableID[transv], variableID[transv] ); 
+
+	for( int j = 1; j < HowManyBkgs+2 ; j++ ){
+
+		if ( h_global[0][j]->Integral() == 0 ) continue;
+
+		h_global[parall][j] -> Scale( weight[j]*TheFactor ); h_global[parall][j] -> SetFillColor( j+1 ); 
+
+		h_global[transv][j] -> Scale( weight[j]*TheFactor ); h_global[transv][j] -> SetFillColor( j+1 );	
+
+	}
+
+	if ( h_global[0][TTGJets]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][TTGJets] );
+	//if ( h_global[0][ZGJets ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][ZGJets ] );
+	if ( h_global[0][WJets  ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][WJets  ] );
+	//if ( h_global[0][WG     ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][WG     ] );
+	if ( h_global[0][QCD    ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][QCD    ] );
+	if ( h_global[0][GJets  ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][GJets  ] );
+
+	TCanvas* c[nvariable]; 
+
+	for( int i = 0; i < 1; i++ ){
+
+		c[i] = new TCanvas( "canvas_" + variableID[i], "one canvas", 600, 600 );
+
+		c[i] -> SetLogy(); 
+
+		h_global[i][dat] -> SetLineColor(kBlack);
+		h_global[i][dat] -> SetMarkerStyle(20);
+
+		s_global[i] -> Draw();
+
+		h_global[i][dat] -> Draw("E1 same");
+
+		c[i] -> SaveAs( "global/" + variableID[i] + ".pdf" );
+		c[i] -> SaveAs( "global/" + variableID[i] + ".png" );
+
+	}
+ 
 }
 
 
@@ -311,7 +390,7 @@ void GetResolution(int whichvar, int parameter, int ibin, float& resol, float& e
 	RooRealVar fbkg( "fbkg", "bkg fraction", 0.5, 0., 1. );
 
 	// model = (1-f)*voigt + f*bkg 
-	RooAddPdf modelA( "modelA", "modelB", RooArgList( voigt   , bkgpdf ), fbkg); 
+	RooAddPdf modelA( "modelA", "modelA", RooArgList( voigt   , bkgpdf ), fbkg); 
 	RooAddPdf modelB( "modelB", "modelB", RooArgList( gjetspdf, bkgpdf ), fbkg); 
 
 
@@ -405,9 +484,9 @@ void GetHistograms(){
 	//for( int j = 0; j < nprocess; j++ ){
 	for( int j = 0; j < HowManyBkgs+2; j++ ){
 
-		GetHistogram( j );
+		cout << "process: " << processID[j] << endl; 
 
-		//cout << j << " success  " << endl;
+		GetHistogram( j );
 
 	}
 
@@ -532,12 +611,6 @@ void GetHistogram( int process ){
 
 	}
 
-	else if( process == WG ){
-
-		tree -> Add( path + "WGToLNuG.root"  ); 
-
-	}
-
 	else if( process == WJets ){
 
 		tree -> Add( path + "WJetsToLNu_00__part0.root"  ); 
@@ -579,6 +652,12 @@ void GetHistogram( int process ){
 
 	}
 
+	else if( process == WG ){
+
+		tree -> Add( path + "WGToLNuG.root"  ); 
+
+	}
+
 	else {
 
 		return; 
@@ -590,20 +669,52 @@ void GetHistogram( int process ){
 	float metPfType1Phi  ;
 	float metPfType1SumEt;
 	float nvtx           ;
+
+	float pho_HoE        ;
+	float pho_sietaieta  ;
+	float pho_chIso      ;
+	float pho_nhIso      ;
+	float pho_phIso      ;
+
+	float puW            ;
+	float kfW	     ; 
+ 	float GEN_weight_SM  ; 
 	
-	vector<float> *std_vector_photon_pt;  std_vector_photon_pt  = 0;
-	vector<float> *std_vector_photon_phi; std_vector_photon_phi = 0;
+	vector<float> *std_vector_photon_pt ;  std_vector_photon_pt  = 0;
+	vector<float> *std_vector_photon_eta;  std_vector_photon_eta = 0;
+	vector<float> *std_vector_photon_phi;  std_vector_photon_phi = 0;
+	vector<float> *std_vector_lepton_pt ;  std_vector_lepton_pt  = 0;
+
+	vector<float> *std_vector_trigger_special; std_vector_trigger_special = 0;
 
 
 	tree -> SetBranchAddress( "metPfType1"           , &metPfType1            );
 	tree -> SetBranchAddress( "metPfType1Phi"        , &metPfType1Phi         );
-	tree -> SetBranchAddress( "std_vector_photon_pt" , &std_vector_photon_pt  );
-	tree -> SetBranchAddress( "std_vector_photon_phi", &std_vector_photon_phi );
 	tree -> SetBranchAddress( "metPfType1SumEt"      , &metPfType1SumEt       );
+	tree -> SetBranchAddress( "std_vector_photon_pt" , &std_vector_photon_pt  );
+	tree -> SetBranchAddress( "std_vector_photon_eta", &std_vector_photon_eta );
+	tree -> SetBranchAddress( "std_vector_photon_phi", &std_vector_photon_phi );
+	tree -> SetBranchAddress( "std_vector_lepton_pt" , &std_vector_lepton_pt  );
 	tree -> SetBranchAddress( "nvtx"                 , &nvtx                  );
+
+	tree -> SetBranchAddress( "pho_HoE"              , &pho_HoE               );
+	tree -> SetBranchAddress( "pho_sietaieta"        , &pho_sietaieta         );
+	tree -> SetBranchAddress( "pho_chIso"            , &pho_chIso             );
+	tree -> SetBranchAddress( "pho_nhIso"            , &pho_nhIso             );
+	tree -> SetBranchAddress( "pho_phIso"            , &pho_phIso             );
+
+	tree -> SetBranchAddress( "puW"                  , &puW                   );
+	tree -> SetBranchAddress( "kfW"                  , &kfW                   );
+	//tree -> SetBranchAddress( "GEN_weight_SM"        , &GEN_weight_SM         );
+
+	tree -> SetBranchAddress( "std_vector_trigger_special" , &std_vector_trigger_special );
+
+
 
 
 	for( int i = 0; i < nvariable; i++ ){
+
+		h_global[i][process] = new TH1F( "h_global_" + variableID[i] + "_" + processID[process], "global histogram", 80, -200, 200 );
 
 		for( int k = 0; k < nbinpT; k++ ){
 
@@ -627,18 +738,63 @@ void GetHistogram( int process ){
 
 	int nentries = tree -> GetEntries(); 
 
-	if ( process == dat                    ) nentries = 200000; 
-	if ( process != dat && nentries > 50000) nentries =  50000; 
+	if ( process == dat  &&  RunOverAllData == false ) nentries = MaxEntriesData; 
+		
+	if ( process != dat  &&  nentries > MaxEntriesMC ) nentries = MaxEntriesMC  ;
 
+	  
 	for ( Long64_t ievt = 0; ievt < nentries; ievt++ ) {
+
+		if( ievt%10000 == 0 ) cout << "  >> 10k more... " << endl;
 
 		tree -> GetEntry(ievt);	
 
-		float photonpT = std_vector_photon_pt->at(0);
+		float photonpT  = std_vector_photon_pt ->at(0);
+		float photoneta = std_vector_photon_eta->at(0);
+
+		float leptonpT  = std_vector_lepton_pt ->at(0);
+
+		//if( photonpT < 40 ) cout << ievt << " -- " << photonpT << endl; continue;
+
+
+		//--- filters ---------------------------------------------------------
+		float HBHENoise                    = std_vector_trigger_special->at(0);
+		float HBHENoiseIso                 = std_vector_trigger_special->at(1);
+		float CSCTightHalo2015             = std_vector_trigger_special->at(2);
+		float EcalDeadCellTriggerPrimitive = std_vector_trigger_special->at(3);
+		float goodVertices                 = std_vector_trigger_special->at(4);
+		float eeBadSc                      = std_vector_trigger_special->at(5);
+		//---------------------------------------------------------------------
+
+		float eventW = 1.0; 
 
 		if ( photonpT > 0 ) {
 
-			if( photonpT >= maxpT || metPfType1SumEt >= maxsumET || nvtx >= maxNVtx) continue;
+			// photon tight ID
+			if ( pho_HoE        > 0.05                                               ) continue;
+			if ( pho_sietaieta  > 0.0100                                             ) continue;
+			if ( pho_chIso      > 0.76                                               ) continue;
+			if ( pho_nhIso      > 0.97 + 0.014 *photonpT + 0.000019*pow(photonpT, 2) ) continue;
+			if ( pho_phIso      > 0.08 + 0.0053*photonpT                             ) continue;
+			
+			// MET filters
+			//if ( HBHENoiseIso                 < 0 ) continue; 
+			//if ( HBHENoise                    < 0 ) continue; 
+			//if ( goodVertices                 < 0 ) continue; 
+			//if ( CSCTightHalo                 < 0 ) continue; 
+			//if ( eeBadSc                      < 0 ) continue; 
+			//if ( EcalDeadCellTriggerPrimitive < 0 ) continue; 
+
+			if ( photoneta > 1.5 ) continue;  // just barrel photons
+
+			if ( leptonpT > 10   ) continue;  // veto leptons > 10 GeV
+
+			eventW *= puW                               ;
+			eventW *= kfW				    ; 
+			//eventW *= GEN_weight_SM / abs(GEN_weight_SM);
+
+
+			if( photonpT < minpT || photonpT >= maxpT || metPfType1SumEt >= maxsumET || nvtx >= maxNVtx) continue;
 
 			int l = floor(    nbinpT    * (photonpT        - minpT   ) / (maxpT    - minpT   )    ); //cout << l << endl;
 			int m = floor(    nbinsumET * (metPfType1SumEt - minsumET) / (maxsumET - minsumET)    ); //cout << m << endl;
@@ -648,24 +804,25 @@ void GetHistogram( int process ){
 
 			ET.SetMagPhi( metPfType1, metPfType1Phi );
 
-			qT.SetMagPhi( std_vector_photon_pt->at(0), std_vector_photon_phi->at(0) );
+			qT.SetMagPhi( photonpT, std_vector_photon_phi->at(0) );
 
 			uT = -1* ( ET + qT ); 
 
-			TVector2 u_parallel = uT.Proj(qT); //cout << qT.DeltaPhi(u_parallel) << endl; 
-			
-			float u_parall; ( qT.Mod() > u_parallel.Mod() )   ?   u_parall = (qT+u_parallel).Mod()                                    :   u_parall = -1* (qT+u_parallel).Mod();   // cout << u_parall << endl;
+			float u_parall = (  uT.Px() * qT.Px() + uT.Py() * qT.Py()  ) / qT.Mod() + qT.Mod();
+			float u_transv = (  uT.Px() * qT.Py() - uT.Py() * qT.Px()  ) / qT.Mod();
 
-			float u_transv; ( qT.Mod() > u_parallel.Mod() )   ?   u_transv = sqrt( pow( uT.Mod(), 2) - pow( u_parallel.Mod(), 2) )    :   u_transv = -1* sqrt( pow( uT.Mod(), 2) - pow( u_parallel.Mod(), 2) );
 
-			h_resol_pT   [parall][process][l] -> Fill( u_parall ); 
-			h_resol_pT   [transv][process][l] -> Fill( u_transv );	
+			h_global     [parall][process]    -> Fill( u_parall, eventW );
+			h_global     [transv][process] 	  -> Fill( u_transv, eventW );
 
-			h_resol_sumET[parall][process][m] -> Fill( u_parall ); 
-			h_resol_sumET[transv][process][m] -> Fill( u_transv );
+			h_resol_pT   [parall][process][l] -> Fill( u_parall, eventW ); 
+			h_resol_pT   [transv][process][l] -> Fill( u_transv, eventW );	
 
-			h_resol_NVtx [parall][process][n] -> Fill( u_parall );
-			h_resol_NVtx [transv][process][n] -> Fill( u_transv );	
+			h_resol_sumET[parall][process][m] -> Fill( u_parall, eventW ); 
+			h_resol_sumET[transv][process][m] -> Fill( u_transv, eventW );
+
+			h_resol_NVtx [parall][process][n] -> Fill( u_parall, eventW );
+			h_resol_NVtx [transv][process][n] -> Fill( u_transv, eventW );	
 
 
 		}
