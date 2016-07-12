@@ -27,23 +27,40 @@
 
 using namespace RooFit;
 
+
+enum{ parall, transv, MET, nvariable };
+enum{ pT, sumET, NVtx, nparameter};
+enum{ dat, GJets, QCD, WJets, ZGJets, ZNuNuGJets40130, ZGTo2LG, WGJets, WGToLNuG, TTGJets, TGJets, nprocess}; 
+
+
+const bool DoNotEventLoop = false; 
+
+const bool RunOverAllData = true; 
+const bool RunOverAllMC   = true; 
+
+      int _TotalEntries[nprocess]; 
+
+const int MaxEntriesData    =   10000;
+const int MaxEntriesMC      =     100;
+
+const int MaxEntriesMCStored =  20000; // 20000 (11vii)
+
+
+const float TheLuminosity = 4.32421;   // fb⁻¹
+
+
+TString allhistosWriteTo  = "allhistos_12Jul"; 
+TString allhistosReadFrom = "allhistos_11Jul"; 
+
+
 const bool SkipFit = true; 
 
-//int TrueEntriesData; 
-
-const bool RunOverAllData = false; 
-const int MaxEntriesData  = 100000;
-const int MaxEntriesMC    = 200000;
-
-const int GJetsMC = false;
+const bool GJetsMC = false;
 
 const float a = 0.5346                ; 
 const float b = 0.2166                ; 
 const float c = 2 * sqrt( 2 * log(2) ); 
 
-enum{ parall, transv, nvariable };
-enum{ pT, sumET, NVtx, nparameter};
-enum{ dat, GJets, QCD, TTGJets, WJets, ZGJets, WG, nprocess}; 
 const int HowManyBkgs = 3;   // provisional  // ideally, HowManyBkgs = 5
 
 float          xs   [nprocess]; 
@@ -60,49 +77,79 @@ float maxpT    = 300.; float minpT    =50.; const int nbinpT    = 25; float _upp
 float maxsumET =3000.; float minsumET = 0.; const int nbinsumET = 30; float _upsumET;  
 float maxNVtx  =  40.; float minNVtx  = 0.; const int nbinNVtx  =  8; float _upNVtx ;
 
+float maxMET   = 200.; float minMET   =    0.; const int nbinMET   = 40;
+float maxuPara = 200.; float minuPara = -200.; const int nbinuPara = 80; 
+float maxuPerp = 200.; float minuPerp = -200.; const int nbinuPerp = 80; 
+
 /*float maxpT    = 200.; float minpT    = 0.; const int nbinpT    =  5; float _uppT   ;
 float maxsumET = 300.; float minsumET = 0.; const int nbinsumET =  5; float _upsumET;  
 float maxNVtx  =  20.; float minNVtx  = 0.; const int nbinNVtx  =  5; float _upNVtx ;*/
 
-const int aa = nvariable;   // just for next block
-const int bb = nprocess ;   // just for next block
+const int aa = nvariable;   // just for next blocks
+const int bb = nprocess ;   // just for next blocks
 
+// ----- write -----------------------------
+TH1F*    h_global_W     [aa][bb]           ;
+TH1F*    h_resol_pT_W   [aa][bb][nbinpT   ];
+TH1F*    h_resol_sumET_W[aa][bb][nbinsumET];
+TH1F*    h_resol_NVtx_W [aa][bb][nbinNVtx ]; 
+// ----- read ------------------------------
 TH1F*    h_global     [aa][bb]           ;
 THStack* s_global     [aa]               ;
 TH1F*    h_resol_pT   [aa][bb][nbinpT   ];
 TH1F*    h_resol_sumET[aa][bb][nbinsumET];
 TH1F*    h_resol_NVtx [aa][bb][nbinNVtx ]; 
+// -----------------------------------------
 
 double GetFWHM      ( double sigma, double gamma                                                                               );
 double GetFWHMerror ( double sigma, double gamma, double esigma, double egamma, double Vss, double Vsg, double Vgs, double Vgg );
-void   GetHistograms(                                                                                                          );
-void   GetHistogram ( int process                                                                                              );
+void  FillHistograms(                                                                                                          );
+void  FillHistogram ( int process                                                                                              );
 void GetResolution  ( int whichvar, int parameter, int ibin, float& resol, float& eresol, float& chichi                        );
 void GetGlobalPlots (                                                                                                          );
 
 void GetResolutions(){
 
-	processID[dat    ] = "data"    ; 
-	processID[GJets  ] = "GJets"   ;  //processcolor[GJets  ] = kYellow ;
-	processID[QCD    ] = "QCD"     ;  //processcolor[QCD    ] = kSpring ;
-	processID[TTGJets] = "TTGJets" ;  //processcolor[TTGJets] = kRed    ;
-	processID[WG     ] = "WG"      ;  //processcolor[WG     ] = kCyan   ;
- 	processID[WJets  ] = "WJets"   ;  //processcolor[WJets  ] = kViolet ;
-	processID[ZGJets ] = "ZGJets"  ;  //processcolor[ZGJets ] = kMagenta;
+	processID[dat            ] = "data"           ; 
+	processID[GJets          ] = "GJets"          ;  //processcolor[GJets  ] = kYellow ;
+	processID[QCD            ] = "QCD"            ;  //processcolor[QCD    ] = kSpring ;
+ 	processID[WJets          ] = "WJets"          ;  //processcolor[WJets  ] = kViolet ;
+	processID[ZGJets         ] = "ZGJets"         ;  //processcolor[ZGJets ] = kMagenta;
+	processID[ZNuNuGJets40130] = "ZNuNuGJets40130";  
+	processID[ZGTo2LG        ] = "ZGTo2LG"        ;  
+	processID[WGJets         ] = "WGJets"         ;  //processcolor[WG     ] = kCyan   ;
+	processID[WGToLNuG       ] = "WGToLNuG"       ;  
+	processID[TTGJets        ] = "TTGJets"        ;  //processcolor[TTGJets] = kRed    ;
+	processID[TGJets         ] = "TGJets"         ;  
+
+
+	// --- x-sections ---------------------------------------------------------------------------
 
 	// https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns
-	xs[GJets  ] = 20790 + 9238 + 2305 + 274.4 + 93.46; 
-	xs[QCD    ] = 27990000 + 1712000 + 347700 + 32100 + 6831 + 1207 + 119.9 + 25.24;
-	xs[TTGJets] =     3.967;
-	xs[WG     ] =   405.271;
-	xs[WJets  ] = 61526.7  ;
-	//xs[ZGJets ] = ? ;
+	// http://mvesterb.web.cern.ch/mvesterb/met/things/samples.dat
+
+	// ------------------------------------------------------------------------------------------
+
+	xs[GJets          ] =    20790      + 9238 + 2305 + 274.4 + 93.46; 
+	xs[QCD            ] = 27990000      + 1712000 + 347700 + 32100 + 6831 + 1207 + 119.9 + 25.24;
+	xs[WJets          ] =    61526.7   ;
+	xs[ZGJets         ] =        0.1903;
+	xs[ZNuNuGJets40130] =        2.816 ;
+	xs[ZGTo2LG        ] =      117.864 ;
+	xs[WGJets         ] =        0.6637; // 405.271;
+	xs[WGToLNuG       ] =      585.800 ;
+	xs[TTGJets        ] =        3.967 ;
+	xs[TGJets         ] =        3.967 ;
+
+	// ------------------------------------------------------------------------------------------
 
 	variableID[parall] = "parallel"  ; 
 	variableID[transv] = "transverse"; 
+	variableID[MET   ] = "MET"       ;
 
-	variableIDfancy[parall] = "u_{||}+q_{T}"; 
-	variableIDfancy[transv] = "u_{#perp}"   ; 
+	variableIDfancy[parall] = "u_{||}+#gamma_{T}"; 
+	variableIDfancy[transv] = "u_{#perp}"        ;
+	variableIDfancy[MET   ] = "E_{T}^{miss}"     ;
 
 	yTitle[parall] = "#sigma(u_{||}) [GeV]"   ;
 	yTitle[transv] = "#sigma(u_{#perp}) [GeV]";
@@ -111,15 +158,20 @@ void GetResolutions(){
 	parameterID[sumET] = "sumET";
 	parameterID[NVtx ] = "NVtx" ;
 
-	GetHistograms();  
+	FillHistograms(); 
 
-	GetGlobalPlots();
+	cout << "                          " << endl; 
+	cout << "                          " << endl;
+	cout << "    histograms filled !!! " << endl;
+	cout << "                          " << endl;
+	cout << "                          " << endl;
+
+	//GetGlobalPlots();
 
 	if( SkipFit == true ) return;
 
-	cout << "    histograms loaded !!! " << endl;
-
-	for( int j = 2; j < HowManyBkgs+2 ; j++ ){
+	//for( int j = 2; j < HowManyBkgs+2 ; j++ ){
+	for( int j = 2; j < nprocess ; j++ ){
 
 		for( int i = 0; i < nbinpT; i++ ){
 
@@ -253,71 +305,493 @@ void GetResolutions(){
 
 }
 
+
+
+void FillHistograms(){
+
+	for( int j = 0; j < nprocess; j++ ){
+	//for( int j = 0; j < HowManyBkgs+2; j++ ){
+
+		cout << "process: " << processID[j] << endl; 
+
+		FillHistogram( j );
+
+	}
+
+	cout << "the writing step begins..." << endl; 
+
+	if( DoNotEventLoop == false ){
+
+		TFile* allhistos = new TFile("histograms/" + allhistosWriteTo +".root", "recreate");
+
+		for( int i = 0; i < nvariable; i++ ){
+
+			for( int j = 0; j < nprocess; j++ ){ 
+
+				h_global_W[i][j] -> Write();
+
+				if( i == MET ) continue;
+							
+				for( int k = 0; k < nbinpT   ; k++) 	h_resol_pT_W   [i][j][k] -> Write();
+				for( int k = 0; k < nbinsumET; k++)	h_resol_sumET_W[i][j][k] -> Write();
+				for( int k = 0; k < nbinNVtx ; k++)	h_resol_NVtx_W [i][j][k] -> Write();
+
+			}
+
+		}
+
+		allhistos -> Close();
+
+	}
+
+}
+
+
+
+void FillHistogram( int process ){
+
+	TChain* tree = new TChain("METtree");
+
+	TString path = "~/eos/cms/store/group/phys_jetmet/dalfonso/ICHEP/gamma/"; 
+
+	if( process == dat ){
+
+		tree -> Add( path + "4fbV6/SinglePhoton_Run2016B_PromptReco_v2/METtree.root" );
+
+	}
+
+
+	else if( process == GJets){
+
+		tree -> Add( path + "GJets_HT40to100/METtree.root"  ); 
+		tree -> Add( path + "GJets_HT100to200/METtree.root" ); 
+		tree -> Add( path + "GJets_HT200to400/METtree.root" ); 
+		tree -> Add( path + "GJets_HT400to600/METtree.root" ); 
+		//tree -> Add( path + "GJets_HT600toInf/METtree.root" ); 
+
+	}
+
+
+	else if( process == QCD ){
+
+		//tree -> Add( path + "QCD_HT200to300/METtree.root"   ); 
+		tree -> Add( path + "QCD_HT300to500/METtree.root"   ); 
+		tree -> Add( path + "QCD_HT500to700_ext/METtree.root"   ); 
+		tree -> Add( path + "QCD_HT700to1000_ext/METtree.root"  ); 
+		tree -> Add( path + "QCD_HT1000to1500/METtree.root" ); 
+		tree -> Add( path + "QCD_HT1500to2000/METtree.root" ); 
+		tree -> Add( path + "QCD_HT2000toInf/METtree.root"  ); 			
+
+	}
+
+
+	else if( process == WJets ){
+
+		tree -> Add( path + "WJetsToLNu_HT100to200/METtree.root"  ); 
+		tree -> Add( path + "WJetsToLNu_HT200to400/METtree.root"  ); 
+		tree -> Add( path + "WJetsToLNu_HT400to600/METtree.root"  ); 
+		tree -> Add( path + "WJetsToLNu_HT600to800/METtree.root"  ); 
+		tree -> Add( path + "WJetsToLNu_HT800to1200_ext/METtree.root" ); 
+		tree -> Add( path + "WJetsToLNu_HT1200to2500/METtree.root"); 
+		tree -> Add( path + "WJetsToLNu_HT2500toInf/METtree.root" ); 	
+
+	}
+
+
+	else if( process == ZGJets ){
+
+		tree -> Add( path + "ZGJets/METtree.root"  ); 
+
+	}
+
+	
+	else if( process == ZNuNuGJets40130 ){
+
+		tree -> Add( path + "ZNuNuGJets40130/METtree.root"  ); 
+
+	}
+
+
+	else if( process == ZGTo2LG ){
+
+		tree -> Add( path + "ZGTo2LG/METtree.root"  ); 
+
+	}
+
+
+	else if( process == WGJets ){
+
+		tree -> Add( path + "WGJets/METtree.root"  ); 
+
+	}
+
+
+	else if( process == WGToLNuG ){
+
+		tree -> Add( path + "WGToLNuG/METtree.root"  ); 
+
+	}
+
+
+	else if( process == TTGJets ){
+
+		//tree -> Add( path + "TTGJets/METtree.root"  ); 
+		
+	}
+
+
+	else if( process == TGJets ){
+
+		tree -> Add( path + "TGJets/METtree.root"  ); 
+		
+	}
+
+
+	else {
+
+		return; 
+
+	}
+
+
+
+	int   ngamma                            ;
+	int   gamma_idCutBased                  ;
+	float gamma_r9                          ;	
+	float gamma_pt                          ;
+	float gamma_eta                         ;
+	float gamma_phi                         ;
+
+	int   nLepGood10                        ;  
+        float lep_pt                            ;  
+
+	int   HBHENoiseFilter                   ;
+	int   HBHENoiseIsoFilter                ;
+	int   CSCTightHalo2015Filter            ;
+	int   EcalDeadCellTriggerPrimitiveFilter;
+	int   goodVertices                      ;
+	int   eeBadScFilter                     ;
+
+	int HLT_Photon30 ;
+	int HLT_Photon50 ;
+	int HLT_Photon75 ;
+	int HLT_Photon90 ;
+	int HLT_Photon120;
+
+	float met_sumEt                         ;
+	int   nVert                             ;
+	float met_pt                            ;
+	float met_phi                           ;
+	//float uPara                             ;
+	//float uPerp                             ;
+	float puWeight                          ;
+	float genWeight	                        ;
+
+
+	tree -> SetBranchAddress( "ngamma"                                 , &ngamma                             );
+	tree -> SetBranchAddress( "gamma_idCutBased"                       , &gamma_idCutBased                   );
+	tree -> SetBranchAddress( "gamma_r9"                               , &gamma_r9                           );
+	tree -> SetBranchAddress( "gamma_pt"                               , &gamma_pt                           );
+	tree -> SetBranchAddress( "gamma_eta"                              , &gamma_eta                          );
+	tree -> SetBranchAddress( "gamma_phi"                              , &gamma_phi                          );
+
+	tree -> SetBranchAddress( "nLepGood10"                             , &nLepGood10                         );
+	tree -> SetBranchAddress( "lep_pt"                                 , &lep_pt                             );
+
+	tree -> SetBranchAddress( "Flag_HBHENoiseFilter"                   , &HBHENoiseFilter                    );
+	tree -> SetBranchAddress( "Flag_HBHENoiseIsoFilter"                , &HBHENoiseIsoFilter                 );
+	tree -> SetBranchAddress( "Flag_CSCTightHalo2015Filter"            , &CSCTightHalo2015Filter             );
+	tree -> SetBranchAddress( "Flag_EcalDeadCellTriggerPrimitiveFilter", &EcalDeadCellTriggerPrimitiveFilter );
+	tree -> SetBranchAddress( "Flag_goodVertices"                      , &goodVertices                       );
+	tree -> SetBranchAddress( "Flag_eeBadScFilter"                     , &eeBadScFilter                      );
+
+	tree -> SetBranchAddress( "HLT_Photon30"                           , &HLT_Photon30                       );
+	tree -> SetBranchAddress( "HLT_Photon50"                           , &HLT_Photon50                       );
+	tree -> SetBranchAddress( "HLT_Photon75"                           , &HLT_Photon75                       );
+	tree -> SetBranchAddress( "HLT_Photon90"                           , &HLT_Photon90                       );
+	tree -> SetBranchAddress( "HLT_Photon120"                          , &HLT_Photon120                      );
+
+	tree -> SetBranchAddress( "met_sumEt"                              , &met_sumEt                          );
+	tree -> SetBranchAddress( "nVert"                                  , &nVert                              );
+	tree -> SetBranchAddress( "met_pt"                                 , &met_pt                             );
+	tree -> SetBranchAddress( "met_phi"                                , &met_phi                            );
+	//tree -> SetBranchAddress( "met_uPara_zll"                          , &uPara                              );
+	//tree -> SetBranchAddress( "met_uPerp_zll"                          , &uPerp                              );
+	tree -> SetBranchAddress( "puWeight"                               , &puWeight                           );
+	tree -> SetBranchAddress( "genWeight"                              , &genWeight                          );
+
+
+
+	for( int i = 0; i < nvariable; i++ ){
+
+		if( i != MET ) h_global_W[i][process] = new TH1F( "h_global_" + variableID[i] + "_" + processID[process], variableID[i], nbinuPara, minuPara, maxuPara );
+		if( i == MET ) h_global_W[i][process] = new TH1F( "h_global_" + variableID[i] + "_" + processID[process], variableID[i], nbinMET  , minMET  , maxMET   );
+
+		if( i == MET) continue;
+
+		for( int k = 0; k < nbinpT; k++ ){
+
+			h_resol_pT_W   [i][process][k] = new TH1F( Form("h_resol_pT_"    + variableID[i] + "_" + processID[process] + "_%d", k), "resolution pT"        , nbinuPara, minuPara, maxuPara );
+
+		}
+
+		for( int k = 0; k < nbinsumET; k++ ){
+
+			h_resol_sumET_W[i][process][k] = new TH1F( Form("h_resol_sumET_" + variableID[i] + "_" + processID[process] + "_%d", k), "resolution sum ET"    , nbinuPara, minuPara, maxuPara );
+
+		}
+
+		for( int k = 0; k < nbinNVtx; k++ ){
+
+			h_resol_NVtx_W [i][process][k] = new TH1F( Form("h_resol_NVtx_"  + variableID[i] + "_" + processID[process] + "_%d", k), "resolution num of vtx", nbinuPara, minuPara, maxuPara );
+
+		}
+
+	}
+
+
+	int nentries = tree -> GetEntries();//cout << " nentries = " << nentries << endl;
+
+	_TotalEntries[process] = nentries; 
+
+	if ( DoNotEventLoop == true ) return; 
+
+	if ( process == dat  &&  RunOverAllData == false ) nentries = MaxEntriesData; 
+		
+	if ( process != dat  &&  RunOverAllMC   == false ) nentries = MaxEntriesMC  ;
+	  
+	for ( Long64_t ievt = 0; ievt < nentries; ievt++ ) {
+
+		if( ievt%10000 == 0 )  cout << "  >> 10k more... " << endl;
+
+		tree -> GetEntry(ievt);	//cout << " ievt = " << ievt << endl;
+
+		if ( ngamma < 1                       ) continue;
+		if ( gamma_idCutBased != 3            ) continue; 
+		if ( gamma_r9 < 0.9 || gamma_r9 > 1.0 ) continue; 
+		if ( gamma_pt < 50                    ) continue; 
+		if ( gamma_eta > 1.5                  ) continue; 
+
+		if ( nLepGood10 > 0                   ) continue; 
+		
+		// MET filters
+		if ( HBHENoiseFilter                    != 1 ) continue; 
+		if ( HBHENoiseIsoFilter                 != 1 ) continue; 
+		if ( CSCTightHalo2015Filter             != 1 ) continue; 
+		if ( EcalDeadCellTriggerPrimitiveFilter != 1 ) continue; 
+		if ( goodVertices                       != 1 ) continue; 
+		if ( eeBadScFilter                      != 1 ) continue; 		
+
+		// triggers
+		if( process == dat ){
+
+			//cout << HLT_Photon30 << "  -- " << HLT_Photon50 << "  -- " << HLT_Photon75 << "  -- " << HLT_Photon90 << "  -- " << HLT_Photon120 << "  -- " << endl;
+
+			if( HLT_Photon30 == 0  &&  HLT_Photon50 == 0  &&  HLT_Photon75 == 0  &&  HLT_Photon90 == 0  &&  HLT_Photon120 == 0 ) continue;
+
+		}
+
+
+
+		float eventW = 1.0 ;
+ 
+		if( process != dat ){
+
+			eventW *= puWeight ;
+
+			eventW *= genWeight;
+
+		}
+
+
+		if( gamma_pt < minpT || gamma_pt >= maxpT || met_sumEt < minsumET || met_sumEt >= maxsumET || nVert < minNVtx || nVert >= maxNVtx) continue;
+
+		//cout << ievt << " -- " << ngamma << " -- " << gamma_pt << " -- " << met_sumEt << " -- " << nVert << endl;
+
+		int l = floor(    nbinpT    * (gamma_pt  - minpT   ) / (maxpT    - minpT   )    ); //cout << l << endl;
+		int m = floor(    nbinsumET * (met_sumEt - minsumET) / (maxsumET - minsumET)    ); //cout << m << endl;
+		int n = floor(    nbinNVtx  * (nVert     - minNVtx ) / (maxNVtx  - minNVtx )    ); //cout << n << endl;
+
+
+		TVector2 qT, ET, uT; 
+
+		ET.SetMagPhi( met_pt  , met_phi   );
+
+		qT.SetMagPhi( gamma_pt, gamma_phi );
+
+		uT = -1* ( ET + qT ); 
+
+		float uPara = (  uT.Px() * qT.Px() + uT.Py() * qT.Py()  ) / qT.Mod() + qT.Mod(); // cout <<  uPara << endl;
+		float uPerp = (  uT.Px() * qT.Py() - uT.Py() * qT.Px()  ) / qT.Mod();
+
+
+		h_global_W     [parall][process]    -> Fill( uPara , eventW ); 
+		h_global_W     [transv][process]    -> Fill( uPerp , eventW );
+		h_global_W     [MET   ][process]    -> Fill( met_pt, eventW );
+
+		h_resol_pT_W   [parall][process][l] -> Fill( uPara , eventW ); 
+		h_resol_pT_W   [transv][process][l] -> Fill( uPerp , eventW );	
+
+		h_resol_sumET_W[parall][process][m] -> Fill( uPara , eventW ); 
+		h_resol_sumET_W[transv][process][m] -> Fill( uPerp , eventW );
+
+		h_resol_NVtx_W [parall][process][n] -> Fill( uPara , eventW );
+		h_resol_NVtx_W [transv][process][n] -> Fill( uPerp , eventW );			
+
+
+	}
+
+	//TCanvas* c = new TCanvas( "mycanvas", "mycanvas", 600, 600 );
+
+	//h_resol[parall][process] -> Draw();
+
+}
+
+
+
 void GetGlobalPlots(){
 
-	//if( RunOverAllData == false ) { cout << "   >>  EH, RunOverAllData is deactivated !!!   " << endl;  return; }
+	//if( RunOverAllData == false ) { cout << "   >>   RunOverAllData is deactivated !!!   " << endl;  return; }
 
-	int TrueEntriesData = h_global[0][dat] -> Integral();
+	TFile* allhistos = new TFile( "histograms/" + allhistosReadFrom + ".root", "read" );
 
-	cout << "TrueEntriesData = " << TrueEntriesData << endl;
+	for( int i = 0; i < nvariable; i++ ){
+
+		for( int j = 0; j < nprocess; j++ ){
+
+			h_global[i][j] = (TH1F*) allhistos -> Get("h_global_" + variableID[i] + "_" + processID[j]);
+
+		}
+
+	
+		h_global[i][dat] -> SetMarkerStyle(20);
+
+		h_global[i][dat] -> SetMarkerColor(kBlack);
+
+		h_global[i][dat] -> SetLineColor(kBlack);
+
+	}
+
+
+	float TheCurrentLuminosity; 
+
+	( RunOverAllData == true )   ?   TheCurrentLuminosity  =  TheLuminosity   :   TheCurrentLuminosity  =  TheLuminosity * MaxEntriesData/_TotalEntries[dat]  ; 
+
 
 	float weight[nprocess]; 
 
-	float TotalXs = 0; 
+	for( int j = 1; j < nprocess; j++ ){
 
-	for( int j = 1; j < HowManyBkgs+2 ; j++ ){
+		( RunOverAllMC == true )   ?   weight[j] = xs[j]/_TotalEntries[j]   :    weight[j] = xs[j]/MaxEntriesMCStored  ; 		
 
-		if ( h_global[0][j]->Integral() == 0 ) continue;
+		h_global[parall][j] -> Scale( weight[j]*TheCurrentLuminosity );  
+		h_global[transv][j] -> Scale( weight[j]*TheCurrentLuminosity ); 
 
-		weight[j] = xs[j]/h_global[0][j]->Integral();
+		h_global[parall][j] -> SetFillColor( j+1 );
+		h_global[transv][j] -> SetFillColor( j+1 );	
 
-		TotalXs = TotalXs + xs[j];  
+		//h_global[parall][j] -> SetMarkerStyle( 21 );
+		//h_global[transv][j] -> SetMarkerStyle( 21 );
+
+		//h_global[parall][j] -> SetMarkerColor( j+1 );
+		//h_global[transv][j] -> SetMarkerColor( j+1 );
+
 
 	}
 
-	float TheFactor = TrueEntriesData / TotalXs ;  cout << "TheFactor = " << TheFactor << endl;
 
 	s_global[parall]  = new THStack( variableID[parall], variableID[parall] );
-	s_global[transv]  = new THStack( variableID[transv], variableID[transv] ); 
+	s_global[transv]  = new THStack( variableID[transv], variableID[transv] );
 
-	for( int j = 1; j < HowManyBkgs+2 ; j++ ){
 
-		if ( h_global[0][j]->Integral() == 0 ) continue;
+	for( int i = 0; i < nvariable; i++ ){
 
-		h_global[parall][j] -> Scale( weight[j]*TheFactor ); h_global[parall][j] -> SetFillColor( j+1 ); 
-
-		h_global[transv][j] -> Scale( weight[j]*TheFactor ); h_global[transv][j] -> SetFillColor( j+1 );	
+		//s_global[i] -> Add( h_global[i][TTGJets        ] );
+		s_global[i] -> Add( h_global[i][TGJets         ] );
+		s_global[i] -> Add( h_global[i][ZGJets         ] );
+		s_global[i] -> Add( h_global[i][ZNuNuGJets40130] );
+		s_global[i] -> Add( h_global[i][ZGTo2LG        ] );
+		s_global[i] -> Add( h_global[i][WJets          ] );
+		s_global[i] -> Add( h_global[i][WGJets         ] );
+		s_global[i] -> Add( h_global[i][WGToLNuG       ] );
+		s_global[i] -> Add( h_global[i][QCD            ] );
+		s_global[i] -> Add( h_global[i][GJets          ] );
 
 	}
 
-	if ( h_global[0][TTGJets]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][TTGJets] );
-	//if ( h_global[0][ZGJets ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][ZGJets ] );
-	if ( h_global[0][WJets  ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][WJets  ] );
-	//if ( h_global[0][WG     ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][WG     ] );
-	if ( h_global[0][QCD    ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][QCD    ] );
-	if ( h_global[0][GJets  ]->Integral() != 0 ) s_global[parall] -> Add( h_global[parall][GJets  ] );
-
+	
 	TCanvas* c[nvariable]; 
 
-	for( int i = 0; i < 1; i++ ){
+	for( int i = 0; i < nvariable; i++ ){
 
 		c[i] = new TCanvas( "canvas_" + variableID[i], "one canvas", 600, 600 );
 
 		c[i] -> SetLogy(); 
 
-		h_global[i][dat] -> SetLineColor(kBlack);
-		h_global[i][dat] -> SetMarkerStyle(20);
+		h_global[i][dat] -> SetTitle("");
 
-		s_global[i] -> Draw();
+		h_global[i][dat] -> SetStats(false);   // it has priority over the gStyle->SetOptStats option
+
+		h_global[i][dat] -> SetXTitle( variableIDfancy[i] + " [GeV]" );
+		h_global[i][dat] -> SetYTitle( Form("Events / %1.0f GeV", (maxuPara-minuPara)/nbinuPara) );
+
+		h_global[i][dat] -> GetXaxis() ->SetTitleOffset(1.2);
+		h_global[i][dat] -> GetYaxis() ->SetTitleOffset(1.5);
+
+		h_global[i][dat] -> Draw("E1"); 
+
+		s_global[i] -> Draw("hist same");
 
 		h_global[i][dat] -> Draw("E1 same");
+
+		// ---------------------------------------------------------------
+		
+		TLegend* TheLegend = new TLegend( 0.65, 0.65, 0.88, 0.88 );
+
+		//TheLegend -> SetHeader("processes");
+
+		TheLegend -> SetBorderSize(0);
+
+		TheLegend -> SetTextSize(0.025);
+
+		for( int j = 0; j < nprocess; j++ ){ 
+
+			( j == dat )   ?   TheLegend -> AddEntry( h_global[i][j], processID[j], "p" )   :   TheLegend -> AddEntry( h_global[i][j], processID[j], "f" );
+
+		}
+
+		TheLegend -> Draw();
+
+		// ---------------------------------------------------------------
+
+		TLatex HeaderLeft, HeaderRight;
+
+		HeaderLeft .SetTextAlign(11);   // left-bottom
+		HeaderRight.SetTextAlign(31);	// right-bottom
+
+		HeaderLeft .SetTextSize(0.03);
+		HeaderRight.SetTextSize(0.03);
+
+		HeaderLeft .SetTextFont(42);
+		HeaderRight.SetTextFont(42);
+
+		HeaderLeft .SetNDC();
+		HeaderRight.SetNDC();
+
+		HeaderLeft .DrawLatex ( 0.1, 0.92,       "CMS Preliminary"                              );
+		HeaderRight.DrawLatex ( 0.9, 0.92, Form( "%4.2f fb^{-1} (13TeV, 2016)", TheLuminosity ) );
+
+		// ---------------------------------------------------------------
 
 		c[i] -> SaveAs( "global/" + variableID[i] + ".pdf" );
 		c[i] -> SaveAs( "global/" + variableID[i] + ".png" );
 
 	}
+
+	//allhistos -> Close();
  
 }
+
 
 
 void GetResolution(int whichvar, int parameter, int ibin, float& resol, float& eresol, float& chichi){
@@ -479,360 +953,5 @@ double GetFWHMerror( double sigma, double gamma, double esigma, double egamma, d
 
 
 
-void GetHistograms(){
 
-	//for( int j = 0; j < nprocess; j++ ){
-	for( int j = 0; j < HowManyBkgs+2; j++ ){
-
-		cout << "process: " << processID[j] << endl; 
-
-		GetHistogram( j );
-
-	}
-
-}
-
-
-void GetHistogram( int process ){
-
-	TChain* tree = new TChain("latino");
-
-	TString path = "~/eos/cms/store/group/phys_higgs/cmshww/amassiro/TEST/latino_"; 
-
-	if( process == dat ){
-
-		tree -> Add( path + "SinglePhoton_00__part0.root" );
-		tree -> Add( path + "SinglePhoton_00__part1.root" );
-		tree -> Add( path + "SinglePhoton_00__part2.root" );
-		tree -> Add( path + "SinglePhoton_00__part3.root" );
-		tree -> Add( path + "SinglePhoton_00__part4.root" );
-
-		tree -> Add( path + "SinglePhoton_01__part0.root" );
-		tree -> Add( path + "SinglePhoton_01__part1.root" );
-		tree -> Add( path + "SinglePhoton_01__part2.root" );
-		tree -> Add( path + "SinglePhoton_01__part3.root" );
-		tree -> Add( path + "SinglePhoton_01__part4.root" );
-
-		tree -> Add( path + "SinglePhoton_02__part0.root" );
-		tree -> Add( path + "SinglePhoton_02__part1.root" );
-		tree -> Add( path + "SinglePhoton_02__part2.root" );
-		tree -> Add( path + "SinglePhoton_02__part3.root" );
-		tree -> Add( path + "SinglePhoton_02__part4.root" );	
-
-		tree -> Add( path + "SinglePhoton_03__part0.root" );
-		tree -> Add( path + "SinglePhoton_03__part1.root" );
-		tree -> Add( path + "SinglePhoton_03__part2.root" );
-		tree -> Add( path + "SinglePhoton_03__part3.root" );
-		tree -> Add( path + "SinglePhoton_03__part4.root" );
-
-		tree -> Add( path + "SinglePhoton_04__part0.root" );
-		tree -> Add( path + "SinglePhoton_04__part1.root" );
-		tree -> Add( path + "SinglePhoton_04__part2.root" );
-		tree -> Add( path + "SinglePhoton_04__part3.root" );
-		tree -> Add( path + "SinglePhoton_04__part4.root" );
-
-		tree -> Add( path + "SinglePhoton_05__part0.root" );
-		tree -> Add( path + "SinglePhoton_05__part1.root" );
-		tree -> Add( path + "SinglePhoton_05__part2.root" );
-		tree -> Add( path + "SinglePhoton_05__part3.root" );
-		tree -> Add( path + "SinglePhoton_05__part4.root" );
-
-		tree -> Add( path + "SinglePhoton_06__part0.root" );
-		tree -> Add( path + "SinglePhoton_06__part1.root" );
-		tree -> Add( path + "SinglePhoton_06__part2.root" );
-
-	}
-
-	else if( process == GJets){
-
-		tree -> Add( path + "GJets40To100__part1.root"  ); 
-		tree -> Add( path + "GJets40To100__part2.root"  ); 
-
-		tree -> Add( path + "GJets100To200__part0.root" );
-		tree -> Add( path + "GJets100To200__part1.root" );
-		tree -> Add( path + "GJets100To200__part2.root" );
- 
-		tree -> Add( path + "GJets200To400__part0.root" ); 
-		tree -> Add( path + "GJets200To400__part1.root" ); 
-		tree -> Add( path + "GJets200To400__part2.root" ); 
-		tree -> Add( path + "GJets200To400__part3.root" ); 
-		tree -> Add( path + "GJets200To400__part4.root" ); 
-
-		tree -> Add( path + "GJets400To600__part0.root" ); 
-		tree -> Add( path + "GJets400To600__part1.root" ); 
-
-		tree -> Add( path + "GJets600ToInf__part0.root" ); 
-		tree -> Add( path + "GJets600ToInf__part1.root" ); 
-
-	}
-
-	else if( process == QCD ){
-
-		tree -> Add( path + "QCD100To200__part0.root"  ); 
-		tree -> Add( path + "QCD100To200__part1.root"  ); 
-		tree -> Add( path + "QCD100To200__part2.root"  ); 
-		tree -> Add( path + "QCD100To200__part3.root"  ); 
-		tree -> Add( path + "QCD100To200__part4.root"  ); 
-
-		tree -> Add( path + "QCD200To300__part0.root"  ); 
-		tree -> Add( path + "QCD200To300__part1.root"  ); 
-		tree -> Add( path + "QCD200To300__part2.root"  ); 
-		tree -> Add( path + "QCD200To300__part3.root"  ); 
-		tree -> Add( path + "QCD200To300__part4.root"  ); 	
-
-		tree -> Add( path + "QCD700To1000__part0.root"  ); 
-		tree -> Add( path + "QCD700To1000__part1.root"  ); 
-		tree -> Add( path + "QCD700To1000__part2.root"  ); 
-		tree -> Add( path + "QCD700To1000__part3.root"  ); 
-		tree -> Add( path + "QCD700To1000__part4.root"  ); 
-
-		tree -> Add( path + "QCD1000To1500__part0.root" ); 
-		tree -> Add( path + "QCD1000To1500__part1.root" ); 
-		tree -> Add( path + "QCD1000To1500__part2.root" ); 
-
-		tree -> Add( path + "QCD1500To2000__part0.root" ); 
-		tree -> Add( path + "QCD1500To2000__part1.root" ); 
-		tree -> Add( path + "QCD1500To2000__part2.root" ); 
-
-		tree -> Add( path + "QCD2000ToInf__part0.root"  ); 
-		tree -> Add( path + "QCD2000ToInf__part1.root"  ); 
-
-	}
-
-	else if( process == TTGJets ){
-
-		tree -> Add( path + "TTGJets_00__part0.root"  ); 
-		tree -> Add( path + "TTGJets_00__part1.root"  ); 
-		tree -> Add( path + "TTGJets_00__part2.root"  ); 
-		tree -> Add( path + "TTGJets_00__part3.root"  ); 
-		tree -> Add( path + "TTGJets_00__part4.root"  ); 
-
-		tree -> Add( path + "TTGJets_01.root"         ); 
-
-	}
-
-	else if( process == WJets ){
-
-		tree -> Add( path + "WJetsToLNu_00__part0.root"  ); 
-		tree -> Add( path + "WJetsToLNu_00__part1.root"  ); 
-		tree -> Add( path + "WJetsToLNu_00__part2.root"  ); 
-		tree -> Add( path + "WJetsToLNu_00__part3.root"  ); 
-		tree -> Add( path + "WJetsToLNu_00__part4.root"  ); 
-
-		tree -> Add( path + "WJetsToLNu_01__part0.root"  ); 
-		tree -> Add( path + "WJetsToLNu_01__part1.root"  ); 
-		tree -> Add( path + "WJetsToLNu_01__part2.root"  ); 
-		tree -> Add( path + "WJetsToLNu_01__part3.root"  ); 
-		tree -> Add( path + "WJetsToLNu_01__part4.root"  ); 
-
-		tree -> Add( path + "WJetsToLNu_02__part0.root"  ); 
-		tree -> Add( path + "WJetsToLNu_02__part1.root"  ); 
-		tree -> Add( path + "WJetsToLNu_02__part2.root"  ); 
-		tree -> Add( path + "WJetsToLNu_02__part3.root"  ); 
-		tree -> Add( path + "WJetsToLNu_02__part4.root"  ); 
-
-		tree -> Add( path + "WJetsToLNu_03__part0.root"  ); 
-		tree -> Add( path + "WJetsToLNu_03__part1.root"  ); 
-		tree -> Add( path + "WJetsToLNu_03__part2.root"  ); 
-		tree -> Add( path + "WJetsToLNu_03__part3.root"  ); 
-		tree -> Add( path + "WJetsToLNu_03__part4.root"  ); 
-
-		tree -> Add( path + "WJetsToLNu_04__part0.root"  ); 
-		tree -> Add( path + "WJetsToLNu_04__part1.root"  ); 
-		tree -> Add( path + "WJetsToLNu_04__part2.root"  ); 
-		tree -> Add( path + "WJetsToLNu_04__part3.root"  ); 
-		tree -> Add( path + "WJetsToLNu_04__part4.root"  ); 
-
-	}
-
-	else if( process == ZGJets ){
-
-		tree -> Add( path + "ZNuNuGJets.root"  ); 
-
-
-	}
-
-	else if( process == WG ){
-
-		tree -> Add( path + "WGToLNuG.root"  ); 
-
-	}
-
-	else {
-
-		return; 
-
-	}
-
-
-	float metPfType1     ;
-	float metPfType1Phi  ;
-	float metPfType1SumEt;
-	float nvtx           ;
-
-	float pho_HoE        ;
-	float pho_sietaieta  ;
-	float pho_chIso      ;
-	float pho_nhIso      ;
-	float pho_phIso      ;
-
-	float puW            ;
-	float kfW	     ; 
- 	float GEN_weight_SM  ; 
-	
-	vector<float> *std_vector_photon_pt ;  std_vector_photon_pt  = 0;
-	vector<float> *std_vector_photon_eta;  std_vector_photon_eta = 0;
-	vector<float> *std_vector_photon_phi;  std_vector_photon_phi = 0;
-	vector<float> *std_vector_lepton_pt ;  std_vector_lepton_pt  = 0;
-
-	vector<float> *std_vector_trigger_special; std_vector_trigger_special = 0;
-
-
-	tree -> SetBranchAddress( "metPfType1"           , &metPfType1            );
-	tree -> SetBranchAddress( "metPfType1Phi"        , &metPfType1Phi         );
-	tree -> SetBranchAddress( "metPfType1SumEt"      , &metPfType1SumEt       );
-	tree -> SetBranchAddress( "std_vector_photon_pt" , &std_vector_photon_pt  );
-	tree -> SetBranchAddress( "std_vector_photon_eta", &std_vector_photon_eta );
-	tree -> SetBranchAddress( "std_vector_photon_phi", &std_vector_photon_phi );
-	tree -> SetBranchAddress( "std_vector_lepton_pt" , &std_vector_lepton_pt  );
-	tree -> SetBranchAddress( "nvtx"                 , &nvtx                  );
-
-	tree -> SetBranchAddress( "pho_HoE"              , &pho_HoE               );
-	tree -> SetBranchAddress( "pho_sietaieta"        , &pho_sietaieta         );
-	tree -> SetBranchAddress( "pho_chIso"            , &pho_chIso             );
-	tree -> SetBranchAddress( "pho_nhIso"            , &pho_nhIso             );
-	tree -> SetBranchAddress( "pho_phIso"            , &pho_phIso             );
-
-	tree -> SetBranchAddress( "puW"                  , &puW                   );
-	tree -> SetBranchAddress( "kfW"                  , &kfW                   );
-	//tree -> SetBranchAddress( "GEN_weight_SM"        , &GEN_weight_SM         );
-
-	tree -> SetBranchAddress( "std_vector_trigger_special" , &std_vector_trigger_special );
-
-
-
-
-	for( int i = 0; i < nvariable; i++ ){
-
-		h_global[i][process] = new TH1F( "h_global_" + variableID[i] + "_" + processID[process], "global histogram", 80, -200, 200 );
-
-		for( int k = 0; k < nbinpT; k++ ){
-
-			h_resol_pT   [i][process][k] = new TH1F( Form("h_resol_pT_"    + variableID[i] + "_" + processID[process] + "_%d", k), "resolution pT"        , 80, -200, 200 );
-
-		}
-
-		for( int k = 0; k < nbinsumET; k++ ){
-
-			h_resol_sumET[i][process][k] = new TH1F( Form("h_resol_sumET_" + variableID[i] + "_" + processID[process] + "_%d", k), "resolution sum ET"    , 80, -200, 200 );
-
-		}
-
-		for( int k = 0; k < nbinNVtx; k++ ){
-
-			h_resol_NVtx [i][process][k] = new TH1F( Form("h_resol_NVtx_"  + variableID[i] + "_" + processID[process] + "_%d", k), "resolution num of vtx", 80, -200, 200 );
-
-		}
-
-	}
-
-	int nentries = tree -> GetEntries(); 
-
-	if ( process == dat  &&  RunOverAllData == false ) nentries = MaxEntriesData; 
-		
-	if ( process != dat  &&  nentries > MaxEntriesMC ) nentries = MaxEntriesMC  ;
-
-	  
-	for ( Long64_t ievt = 0; ievt < nentries; ievt++ ) {
-
-		if( ievt%10000 == 0 ) cout << "  >> 10k more... " << endl;
-
-		tree -> GetEntry(ievt);	
-
-		float photonpT  = std_vector_photon_pt ->at(0);
-		float photoneta = std_vector_photon_eta->at(0);
-
-		float leptonpT  = std_vector_lepton_pt ->at(0);
-
-		//if( photonpT < 40 ) cout << ievt << " -- " << photonpT << endl; continue;
-
-
-		//--- filters ---------------------------------------------------------
-		float HBHENoise                    = std_vector_trigger_special->at(0);
-		float HBHENoiseIso                 = std_vector_trigger_special->at(1);
-		float CSCTightHalo2015             = std_vector_trigger_special->at(2);
-		float EcalDeadCellTriggerPrimitive = std_vector_trigger_special->at(3);
-		float goodVertices                 = std_vector_trigger_special->at(4);
-		float eeBadSc                      = std_vector_trigger_special->at(5);
-		//---------------------------------------------------------------------
-
-		float eventW = 1.0; 
-
-		if ( photonpT > 0 ) {
-
-			// photon tight ID
-			if ( pho_HoE        > 0.05                                               ) continue;
-			if ( pho_sietaieta  > 0.0100                                             ) continue;
-			if ( pho_chIso      > 0.76                                               ) continue;
-			if ( pho_nhIso      > 0.97 + 0.014 *photonpT + 0.000019*pow(photonpT, 2) ) continue;
-			if ( pho_phIso      > 0.08 + 0.0053*photonpT                             ) continue;
-			
-			// MET filters
-			//if ( HBHENoiseIso                 < 0 ) continue; 
-			//if ( HBHENoise                    < 0 ) continue; 
-			//if ( goodVertices                 < 0 ) continue; 
-			//if ( CSCTightHalo                 < 0 ) continue; 
-			//if ( eeBadSc                      < 0 ) continue; 
-			//if ( EcalDeadCellTriggerPrimitive < 0 ) continue; 
-
-			if ( photoneta > 1.5 ) continue;  // just barrel photons
-
-			if ( leptonpT > 10   ) continue;  // veto leptons > 10 GeV
-
-			eventW *= puW                               ;
-			eventW *= kfW				    ; 
-			//eventW *= GEN_weight_SM / abs(GEN_weight_SM);
-
-
-			if( photonpT < minpT || photonpT >= maxpT || metPfType1SumEt >= maxsumET || nvtx >= maxNVtx) continue;
-
-			int l = floor(    nbinpT    * (photonpT        - minpT   ) / (maxpT    - minpT   )    ); //cout << l << endl;
-			int m = floor(    nbinsumET * (metPfType1SumEt - minsumET) / (maxsumET - minsumET)    ); //cout << m << endl;
-			int n = floor(    nbinNVtx  * (nvtx            - minNVtx ) / (maxNVtx  - minNVtx )    ); //cout << n << endl;
-
-			TVector2 qT, ET, uT; 
-
-			ET.SetMagPhi( metPfType1, metPfType1Phi );
-
-			qT.SetMagPhi( photonpT, std_vector_photon_phi->at(0) );
-
-			uT = -1* ( ET + qT ); 
-
-			float u_parall = (  uT.Px() * qT.Px() + uT.Py() * qT.Py()  ) / qT.Mod() + qT.Mod();
-			float u_transv = (  uT.Px() * qT.Py() - uT.Py() * qT.Px()  ) / qT.Mod();
-
-
-			h_global     [parall][process]    -> Fill( u_parall, eventW );
-			h_global     [transv][process] 	  -> Fill( u_transv, eventW );
-
-			h_resol_pT   [parall][process][l] -> Fill( u_parall, eventW ); 
-			h_resol_pT   [transv][process][l] -> Fill( u_transv, eventW );	
-
-			h_resol_sumET[parall][process][m] -> Fill( u_parall, eventW ); 
-			h_resol_sumET[transv][process][m] -> Fill( u_transv, eventW );
-
-			h_resol_NVtx [parall][process][n] -> Fill( u_parall, eventW );
-			h_resol_NVtx [transv][process][n] -> Fill( u_transv, eventW );	
-
-
-		}
-
-
-	}
-
-	//TCanvas* c = new TCanvas( "mycanvas", "mycanvas", 600, 600 );
-
-	//h_resol[parall][process] -> Draw();
-
-}
 
