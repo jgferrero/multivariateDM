@@ -11,28 +11,27 @@ void MET3(){
 
 	TFile* allhistos = new TFile( "histograms/" + allhistosReadFrom + ".root", "read" );
 
-	for( int i = 0; i < nvariable; i++ ){
-
-		if( i == MET ) continue; 
+	for( int i = 0; i < nvariable_R; i++ ){
 
 		for( int j = 0; j < nprocess; j++ ){
+		//for( int j = alpha; j < omega+1; j++ ){ 
 
 			int TheKanal = kanal[j];
 
 			for( int k = 0; k < nbinpT   ; k++){
 
-				h_resol_pT   [i][j][k] = (TH1F*) allhistos -> Get( Form("h_resol_pT_"    + variableID[i] + "_" + kanalID[TheKanal] + "_" + processID[j] + "_%d", k) );
+				h_resol_pT   [i][j][k] = (TH1F*) allhistos -> Get( Form("h_resol_pT_"    + variableID_R[i] + "_" + kanalID[TheKanal] + "_" + processID[j] + "_%d", k) );
 			}
 
 			for( int k = 0; k < nbinsumET; k++){	
 
-				h_resol_sumET[i][j][k] = (TH1F*) allhistos -> Get( Form("h_resol_sumET_" + variableID[i] + "_" + kanalID[TheKanal] + "_"+ processID[j] + "_%d", k) );
+				h_resol_sumET[i][j][k] = (TH1F*) allhistos -> Get( Form("h_resol_sumET_" + variableID_R[i] + "_" + kanalID[TheKanal] + "_"+ processID[j] + "_%d", k) );
 
 			}
 
 			for( int k = 0; k < nbinNVtx ; k++){	
 
-				h_resol_NVtx [i][j][k] = (TH1F*) allhistos -> Get( Form("h_resol_NVtx_"  + variableID[i] + "_" + kanalID[TheKanal] + "_"+ processID[j] + "_%d", k) );
+				h_resol_NVtx [i][j][k] = (TH1F*) allhistos -> Get( Form("h_resol_NVtx_"  + variableID_R[i] + "_" + kanalID[TheKanal] + "_"+ processID[j] + "_%d", k) );
 
 			}
 
@@ -48,13 +47,18 @@ void MET3(){
 	for( int k = 0; k < nbinpT; k++ ){
 
 		for( int m = 0; m < nkanal; m++ ){
+		//for( int m = 0; m < 1; m++ ){
 
-			h_resol_pT_fit   [parall][0][k][m] = new TH1F( Form("h_resol_pT_"  + variableID[parall] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPara, minuPara, maxuPara );
- 			h_resol_pT_fit   [parall][1][k][m] = new TH1F( Form("h_resol_pT_"  + variableID[parall] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPara, minuPara, maxuPara );
- 			h_resol_pT_fit   [parall][2][k][m] = new TH1F( Form("h_resol_pT_"  + variableID[parall] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPara, minuPara, maxuPara );
-			h_resol_pT_fit   [transv][0][k][m] = new TH1F( Form("h_resol_pT_"  + variableID[transv] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPerp, minuPerp, maxuPerp ); 
-			h_resol_pT_fit   [transv][1][k][m] = new TH1F( Form("h_resol_pT_"  + variableID[transv] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPerp, minuPerp, maxuPerp ); 
-			h_resol_pT_fit   [transv][2][k][m] = new TH1F( Form("h_resol_pT_"  + variableID[transv] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPerp, minuPerp, maxuPerp ); 
+			h_resol_pT_fit   [parall_R][0][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[parall_R] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPara, minuPara, maxuPara );
+ 			h_resol_pT_fit   [parall_R][1][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[parall_R] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPara, minuPara, maxuPara );
+ 			h_resol_pT_fit   [parall_R][2][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[parall_R] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPara, minuPara, maxuPara );
+			h_resol_pT_fit   [transv_R][0][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[transv_R] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPerp, minuPerp, maxuPerp ); 
+			h_resol_pT_fit   [transv_R][1][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[transv_R] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPerp, minuPerp, maxuPerp ); 
+			h_resol_pT_fit   [transv_R][2][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[transv_R] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPerp, minuPerp, maxuPerp ); 
+			h_resol_pT_fit   [scale   ][0][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[scale   ] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinscale, minscale, maxscale ); 
+			h_resol_pT_fit   [scale   ][1][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[scale   ] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinscale, minscale, maxscale ); 
+			h_resol_pT_fit   [scale   ][2][k][m] = new TH1F( Form("h_resol_pT_"  + variableID_R[scale   ] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinscale, minscale, maxscale );
+
 		}
 
 	}
@@ -62,13 +66,17 @@ void MET3(){
 	for( int k = 0; k < nbinsumET; k++ ){
 
 		for( int m = 0; m < nkanal; m++ ){
+		//for( int m = 0; m < 1; m++ ){
 
-			h_resol_sumET_fit[parall][0][k][m] = new TH1F( Form("h_resol_sumET_" + variableID[parall] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPara, minuPara, maxuPara );
-	 		h_resol_sumET_fit[parall][1][k][m] = new TH1F( Form("h_resol_sumET_" + variableID[parall] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPara, minuPara, maxuPara );
- 			h_resol_sumET_fit[parall][2][k][m] = new TH1F( Form("h_resol_sumET_" + variableID[parall] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPara, minuPara, maxuPara );
-			h_resol_sumET_fit[transv][0][k][m] = new TH1F( Form("h_resol_sumET_" + variableID[transv] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPerp, minuPerp, maxuPerp );
-			h_resol_sumET_fit[transv][1][k][m] = new TH1F( Form("h_resol_sumET_" + variableID[transv] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPerp, minuPerp, maxuPerp );
-			h_resol_sumET_fit[transv][2][k][m] = new TH1F( Form("h_resol_sumET_" + variableID[transv] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPerp, minuPerp, maxuPerp );
+			h_resol_sumET_fit[parall_R][0][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[parall_R] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPara, minuPara, maxuPara );
+	 		h_resol_sumET_fit[parall_R][1][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[parall_R] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPara, minuPara, maxuPara );
+ 			h_resol_sumET_fit[parall_R][2][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[parall_R] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPara, minuPara, maxuPara );
+			h_resol_sumET_fit[transv_R][0][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[transv_R] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPerp, minuPerp, maxuPerp );
+			h_resol_sumET_fit[transv_R][1][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[transv_R] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPerp, minuPerp, maxuPerp );
+			h_resol_sumET_fit[transv_R][2][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[transv_R] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPerp, minuPerp, maxuPerp );
+			h_resol_sumET_fit[scale   ][0][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[scale   ] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinscale, minscale, maxscale ); 
+			h_resol_sumET_fit[scale   ][1][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[scale   ] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinscale, minscale, maxscale ); 
+			h_resol_sumET_fit[scale   ][2][k][m] = new TH1F( Form("h_resol_sumET_" + variableID_R[scale   ] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinscale, minscale, maxscale );
 
 		}
 
@@ -77,259 +85,302 @@ void MET3(){
 	for( int k = 0; k < nbinNVtx; k++ ){
 
 		for( int m = 0; m < nkanal; m++ ){
+		//for( int m = 0; m < 1; m++ ){
 
-			h_resol_NVtx_fit [parall][0][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID[parall] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPara, minuPara, maxuPara );
-	 		h_resol_NVtx_fit [parall][1][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID[parall] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPara, minuPara, maxuPara );
- 			h_resol_NVtx_fit [parall][2][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID[parall] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPara, minuPara, maxuPara );
-			h_resol_NVtx_fit [transv][0][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID[transv] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPerp, minuPerp, maxuPerp );
-			h_resol_NVtx_fit [transv][1][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID[transv] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPerp, minuPerp, maxuPerp );
-			h_resol_NVtx_fit [transv][2][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID[transv] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPerp, minuPerp, maxuPerp );
-
-		}
-
-	}
-
-	for( int i = 0; i < nvariable; i++ ){
-
-	if( i == MET ) continue; 
-
-		for( int j = 2; j < nprocess ; j++ ){
-
-			for( int k = 0; k < nbinpT; k++ ){
-
-				h_resol_pT_fit   [i][0][k][Zee] -> Add( h_resol_pT   [i][DoubleEG2016B][k] ); 
-				h_resol_pT_fit   [i][0][k][Zee] -> Add( h_resol_pT   [i][DoubleEG2016C][k] ); 
-				h_resol_pT_fit   [i][0][k][Zee] -> Add( h_resol_pT   [i][DoubleEG2016D][k] ); 
-				h_resol_pT_fit   [i][2][k][Zee] -> Add( h_resol_pT   [i][DY_ee        ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][TT_ee        ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][WW_ee        ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][WZTo2L2Q_ee  ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][WZTo3LNu_ee  ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][ZZTo4L_ee    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][ZZTo2L2Q_ee  ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][ZZTo2L2Nu_ee ][k] ); 
-
-				h_resol_pT_fit   [i][0][k][Zmumu] -> Add( h_resol_pT   [i][DoubleMuon2016B][k] ); 
-				h_resol_pT_fit   [i][0][k][Zmumu] -> Add( h_resol_pT   [i][DoubleMuon2016C][k] ); 
-				h_resol_pT_fit   [i][0][k][Zmumu] -> Add( h_resol_pT   [i][DoubleMuon2016D][k] ); 
-				h_resol_pT_fit   [i][2][k][Zmumu] -> Add( h_resol_pT   [i][DY_mm          ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][TT_mm          ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][WW_mm          ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][WZTo2L2Q_mm    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][WZTo3LNu_mm    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][ZZTo4L_mm      ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][ZZTo2L2Q_mm    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][ZZTo2L2Nu_mm   ][k] );
-
-				h_resol_pT_fit   [i][0][k][Gamma] -> Add( h_resol_pT   [i][SinglePhoton2016B][k] ); 
-				h_resol_pT_fit   [i][0][k][Gamma] -> Add( h_resol_pT   [i][SinglePhoton2016C][k] ); 
-				h_resol_pT_fit   [i][0][k][Gamma] -> Add( h_resol_pT   [i][SinglePhoton2016D][k] ); 
-				h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets40100 ][k] ); 
-				h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets100200][k] ); 
-				h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets200400][k] ); 
-				h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets400600][k] ); 
-				h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets600Inf][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD200300      ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD300500      ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD500700      ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD7001000     ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD10001500    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD15002000    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD2000Inf     ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets100200    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets200400    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets400600    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets600800    ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets8001200   ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets12002500  ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets2500Inf   ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][ZGJets         ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][ZNuNuGJets40130][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][ZGTo2LG        ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WGJets         ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WGToLNuG       ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][TTGJets        ][k] ); 
-				h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][TGJets         ][k] ); 
-
-			}
-
-			for( int k = 0; k < nbinsumET; k++ ){
-
-				h_resol_sumET_fit   [i][0][k][Zee] -> Add( h_resol_sumET   [i][DoubleEG2016B][k] ); 
-				h_resol_sumET_fit   [i][0][k][Zee] -> Add( h_resol_sumET   [i][DoubleEG2016C][k] ); 
-				h_resol_sumET_fit   [i][0][k][Zee] -> Add( h_resol_sumET   [i][DoubleEG2016D][k] ); 
-				h_resol_sumET_fit   [i][2][k][Zee] -> Add( h_resol_sumET   [i][DY_ee        ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][TT_ee        ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][WW_ee        ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][WZTo2L2Q_ee  ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][WZTo3LNu_ee  ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][ZZTo4L_ee    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][ZZTo2L2Q_ee  ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][ZZTo2L2Nu_ee ][k] ); 
-
-				h_resol_sumET_fit   [i][0][k][Zmumu] -> Add( h_resol_sumET   [i][DoubleMuon2016B][k] ); 
-				h_resol_sumET_fit   [i][0][k][Zmumu] -> Add( h_resol_sumET   [i][DoubleMuon2016C][k] ); 
-				h_resol_sumET_fit   [i][0][k][Zmumu] -> Add( h_resol_sumET   [i][DoubleMuon2016D][k] ); 
-				h_resol_sumET_fit   [i][2][k][Zmumu] -> Add( h_resol_sumET   [i][DY_mm          ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][TT_mm          ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][WW_mm          ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][WZTo2L2Q_mm    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][WZTo3LNu_mm    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][ZZTo4L_mm      ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][ZZTo2L2Q_mm    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][ZZTo2L2Nu_mm   ][k] );
-
-				h_resol_sumET_fit   [i][0][k][Gamma] -> Add( h_resol_sumET   [i][SinglePhoton2016B][k] ); 
-				h_resol_sumET_fit   [i][0][k][Gamma] -> Add( h_resol_sumET   [i][SinglePhoton2016C][k] ); 
-				h_resol_sumET_fit   [i][0][k][Gamma] -> Add( h_resol_sumET   [i][SinglePhoton2016D][k] ); 
-				h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets40100 ][k] ); 
-				h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets100200][k] ); 
-				h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets200400][k] ); 
-				h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets400600][k] ); 
-				h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets600Inf][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD200300      ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD300500      ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD500700      ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD7001000     ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD10001500    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD15002000    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD2000Inf     ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets100200    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets200400    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets400600    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets600800    ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets8001200   ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets12002500  ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets2500Inf   ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][ZGJets         ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][ZNuNuGJets40130][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][ZGTo2LG        ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WGJets         ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WGToLNuG       ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][TTGJets        ][k] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][TGJets         ][k] ); 
-
-			}
-
-			for( int k = 0; k < nbinNVtx; k++ ){
-
-				h_resol_NVtx_fit   [i][0][k][Zee] -> Add( h_resol_NVtx   [i][DoubleEG2016B][k] ); 
-				h_resol_NVtx_fit   [i][0][k][Zee] -> Add( h_resol_NVtx   [i][DoubleEG2016C][k] ); 
-				h_resol_NVtx_fit   [i][0][k][Zee] -> Add( h_resol_NVtx   [i][DoubleEG2016D][k] ); 
-				h_resol_NVtx_fit   [i][2][k][Zee] -> Add( h_resol_NVtx   [i][DY_ee        ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][TT_ee        ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][WW_ee        ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][WZTo2L2Q_ee  ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][WZTo3LNu_ee  ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][ZZTo4L_ee    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][ZZTo2L2Q_ee  ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][ZZTo2L2Nu_ee ][k] ); 
-
-				h_resol_NVtx_fit   [i][0][k][Zmumu] -> Add( h_resol_NVtx   [i][DoubleMuon2016B][k] ); 
-				h_resol_NVtx_fit   [i][0][k][Zmumu] -> Add( h_resol_NVtx   [i][DoubleMuon2016C][k] ); 
-				h_resol_NVtx_fit   [i][0][k][Zmumu] -> Add( h_resol_NVtx   [i][DoubleMuon2016D][k] ); 
-				h_resol_NVtx_fit   [i][2][k][Zmumu] -> Add( h_resol_NVtx   [i][DY_mm          ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][TT_mm          ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][WW_mm          ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][WZTo2L2Q_mm    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][WZTo3LNu_mm    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][ZZTo4L_mm      ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][ZZTo2L2Q_mm    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][ZZTo2L2Nu_mm   ][k] );
-
-				h_resol_NVtx_fit   [i][0][k][Gamma] -> Add( h_resol_NVtx   [i][SinglePhoton2016B][k] ); 
-				h_resol_NVtx_fit   [i][0][k][Gamma] -> Add( h_resol_NVtx   [i][SinglePhoton2016C][k] ); 
-				h_resol_NVtx_fit   [i][0][k][Gamma] -> Add( h_resol_NVtx   [i][SinglePhoton2016D][k] ); 
-				h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets40100 ][k] ); 
-				h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets100200][k] ); 
-				h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets200400][k] ); 
-				h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets400600][k] ); 
-				h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets600Inf][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD200300      ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD300500      ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD500700      ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD7001000     ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD10001500    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD15002000    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD2000Inf     ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets100200    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets200400    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets400600    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets600800    ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets8001200   ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets12002500  ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets2500Inf   ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][ZGJets         ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][ZNuNuGJets40130][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][ZGTo2LG        ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WGJets         ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WGToLNuG       ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][TTGJets        ][k] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][TGJets         ][k] ); 
-
-			}
+			h_resol_NVtx_fit [parall_R][0][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[parall_R] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPara, minuPara, maxuPara );
+	 		h_resol_NVtx_fit [parall_R][1][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[parall_R] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPara, minuPara, maxuPara );
+ 			h_resol_NVtx_fit [parall_R][2][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[parall_R] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPara, minuPara, maxuPara );
+			h_resol_NVtx_fit [transv_R][0][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[transv_R] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinuPerp, minuPerp, maxuPerp );
+			h_resol_NVtx_fit [transv_R][1][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[transv_R] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinuPerp, minuPerp, maxuPerp );
+			h_resol_NVtx_fit [transv_R][2][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[transv_R] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinuPerp, minuPerp, maxuPerp );
+			h_resol_NVtx_fit [scale   ][0][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[scale   ] + "_" + kanalID[m] + "_data_%d",   k), "data   ", nbinscale, minscale, maxscale ); 
+			h_resol_NVtx_fit [scale   ][1][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[scale   ] + "_" + kanalID[m] + "_allbkg_%d", k), "all bkg", nbinscale, minscale, maxscale ); 
+			h_resol_NVtx_fit [scale   ][2][k][m] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[scale   ] + "_" + kanalID[m] + "_signal_%d", k), "signal ", nbinscale, minscale, maxscale );
 
 		}
 
 	}
 
- 
-	// fits & final plots 
-
-	for( int i = 0; i < nvariable; i++){
-
-		if( i == MET ) continue; 
 
 
-		// ----- resolution: photon pT
+	for( int i = 0; i < nvariable_R; i++ ){
 
 		for( int k = 0; k < nbinpT; k++ ){
 
-			xpT[k] = minpT + (1.0*k+0.5)*(maxpT-minpT)/nbinpT;  
+			h_resol_pT_fit   [i][0][k][Zee] -> Add( h_resol_pT   [i][DoubleEG2016B][k] ); 
+			h_resol_pT_fit   [i][0][k][Zee] -> Add( h_resol_pT   [i][DoubleEG2016C][k] ); 
+			h_resol_pT_fit   [i][0][k][Zee] -> Add( h_resol_pT   [i][DoubleEG2016D][k] ); 
+			h_resol_pT_fit   [i][2][k][Zee] -> Add( h_resol_pT   [i][DY_ee        ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][TT_ee        ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][WW_ee        ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][WZTo2L2Q_ee  ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][WZTo3LNu_ee  ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][ZZTo4L_ee    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][ZZTo2L2Q_ee  ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zee] -> Add( h_resol_pT   [i][ZZTo2L2Nu_ee ][k] ); 
 
-			GetResolution( Zee  , i, pT, k, ypT_A_Zee[k],    epT_A_Zee[k],    chi2pT_A_Zee[k], "GJetsVoigtian" );
-			GetResolution( Zmumu, i, pT, k, ypT_A_Zmm[k],    epT_A_Zmm[k],    chi2pT_A_Zmm[k], "GJetsVoigtian" );
-			GetResolution( Gamma, i, pT, k, ypT_A_lum[k],    epT_A_lum[k],    chi2pT_A_lum[k], "GJetsVoigtian" );
+			h_resol_pT_fit   [i][0][k][Zmumu] -> Add( h_resol_pT   [i][DoubleMuon2016B][k] ); 
+			h_resol_pT_fit   [i][0][k][Zmumu] -> Add( h_resol_pT   [i][DoubleMuon2016C][k] ); 
+			h_resol_pT_fit   [i][0][k][Zmumu] -> Add( h_resol_pT   [i][DoubleMuon2016D][k] ); 
+			h_resol_pT_fit   [i][2][k][Zmumu] -> Add( h_resol_pT   [i][DY_mm          ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][TT_mm          ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][WW_mm          ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][WZTo2L2Q_mm    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][WZTo3LNu_mm    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][ZZTo4L_mm      ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][ZZTo2L2Q_mm    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Zmumu] -> Add( h_resol_pT   [i][ZZTo2L2Nu_mm   ][k] );
 
-			//GetResolution( i, pT, k, ypT_B[k],  epT_B[k],  chi2pT_B[k], "GJetsFromMC"    );
+			h_resol_pT_fit   [i][0][k][Gamma] -> Add( h_resol_pT   [i][SinglePhoton2016B][k] ); 
+			h_resol_pT_fit   [i][0][k][Gamma] -> Add( h_resol_pT   [i][SinglePhoton2016C][k] ); 
+			h_resol_pT_fit   [i][0][k][Gamma] -> Add( h_resol_pT   [i][SinglePhoton2016D][k] ); 
+			h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets40100 ][k] ); 
+			h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets100200][k] ); 
+			h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets200400][k] ); 
+			h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets400600][k] ); 
+			h_resol_pT_fit   [i][2][k][Gamma] -> Add( h_resol_pT   [i][GJets600Inf][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD200300      ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD300500      ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD500700      ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD7001000     ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD10001500    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD15002000    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][QCD2000Inf     ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets100200    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets200400    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets400600    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets600800    ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets8001200   ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets12002500  ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WJets2500Inf   ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][ZGJets         ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][ZNuNuGJets40130][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][ZGTo2LG        ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WGJets         ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][WGToLNuG       ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][TTGJets        ][k] ); 
+			h_resol_pT_fit   [i][1][k][Gamma] -> Add( h_resol_pT   [i][TGJets         ][k] ); 
+
+		}
+
+		for( int k = 0; k < nbinsumET; k++ ){
+
+			h_resol_sumET_fit   [i][0][k][Zee] -> Add( h_resol_sumET   [i][DoubleEG2016B][k] ); 
+			h_resol_sumET_fit   [i][0][k][Zee] -> Add( h_resol_sumET   [i][DoubleEG2016C][k] ); 
+			h_resol_sumET_fit   [i][0][k][Zee] -> Add( h_resol_sumET   [i][DoubleEG2016D][k] ); 
+			h_resol_sumET_fit   [i][2][k][Zee] -> Add( h_resol_sumET   [i][DY_ee        ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][TT_ee        ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][WW_ee        ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][WZTo2L2Q_ee  ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][WZTo3LNu_ee  ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][ZZTo4L_ee    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][ZZTo2L2Q_ee  ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zee] -> Add( h_resol_sumET   [i][ZZTo2L2Nu_ee ][k] ); 
+
+			h_resol_sumET_fit   [i][0][k][Zmumu] -> Add( h_resol_sumET   [i][DoubleMuon2016B][k] ); 
+			h_resol_sumET_fit   [i][0][k][Zmumu] -> Add( h_resol_sumET   [i][DoubleMuon2016C][k] ); 
+			h_resol_sumET_fit   [i][0][k][Zmumu] -> Add( h_resol_sumET   [i][DoubleMuon2016D][k] ); 
+			h_resol_sumET_fit   [i][2][k][Zmumu] -> Add( h_resol_sumET   [i][DY_mm          ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][TT_mm          ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][WW_mm          ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][WZTo2L2Q_mm    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][WZTo3LNu_mm    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][ZZTo4L_mm      ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][ZZTo2L2Q_mm    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Zmumu] -> Add( h_resol_sumET   [i][ZZTo2L2Nu_mm   ][k] );
+
+			h_resol_sumET_fit   [i][0][k][Gamma] -> Add( h_resol_sumET   [i][SinglePhoton2016B][k] ); 
+			h_resol_sumET_fit   [i][0][k][Gamma] -> Add( h_resol_sumET   [i][SinglePhoton2016C][k] ); 
+			h_resol_sumET_fit   [i][0][k][Gamma] -> Add( h_resol_sumET   [i][SinglePhoton2016D][k] ); 
+			h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets40100 ][k] ); 
+			h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets100200][k] ); 
+			h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets200400][k] ); 
+			h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets400600][k] ); 
+			h_resol_sumET_fit   [i][2][k][Gamma] -> Add( h_resol_sumET   [i][GJets600Inf][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD200300      ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD300500      ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD500700      ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD7001000     ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD10001500    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD15002000    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][QCD2000Inf     ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets100200    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets200400    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets400600    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets600800    ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets8001200   ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets12002500  ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WJets2500Inf   ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][ZGJets         ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][ZNuNuGJets40130][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][ZGTo2LG        ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WGJets         ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][WGToLNuG       ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][TTGJets        ][k] ); 
+			h_resol_sumET_fit   [i][1][k][Gamma] -> Add( h_resol_sumET   [i][TGJets         ][k] );
+
+		}
+
+		for( int k = 0; k < nbinNVtx; k++ ){
+
+			h_resol_NVtx_fit   [i][0][k][Zee] -> Add( h_resol_NVtx   [i][DoubleEG2016B][k] ); 
+			h_resol_NVtx_fit   [i][0][k][Zee] -> Add( h_resol_NVtx   [i][DoubleEG2016C][k] ); 
+			h_resol_NVtx_fit   [i][0][k][Zee] -> Add( h_resol_NVtx   [i][DoubleEG2016D][k] ); 
+			h_resol_NVtx_fit   [i][2][k][Zee] -> Add( h_resol_NVtx   [i][DY_ee        ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][TT_ee        ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][WW_ee        ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][WZTo2L2Q_ee  ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][WZTo3LNu_ee  ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][ZZTo4L_ee    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][ZZTo2L2Q_ee  ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zee] -> Add( h_resol_NVtx   [i][ZZTo2L2Nu_ee ][k] ); 
+
+			h_resol_NVtx_fit   [i][0][k][Zmumu] -> Add( h_resol_NVtx   [i][DoubleMuon2016B][k] ); 
+			h_resol_NVtx_fit   [i][0][k][Zmumu] -> Add( h_resol_NVtx   [i][DoubleMuon2016C][k] ); 
+			h_resol_NVtx_fit   [i][0][k][Zmumu] -> Add( h_resol_NVtx   [i][DoubleMuon2016D][k] ); 
+			h_resol_NVtx_fit   [i][2][k][Zmumu] -> Add( h_resol_NVtx   [i][DY_mm          ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][TT_mm          ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][WW_mm          ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][WZTo2L2Q_mm    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][WZTo3LNu_mm    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][ZZTo4L_mm      ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][ZZTo2L2Q_mm    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Zmumu] -> Add( h_resol_NVtx   [i][ZZTo2L2Nu_mm   ][k] );
+
+			h_resol_NVtx_fit   [i][0][k][Gamma] -> Add( h_resol_NVtx   [i][SinglePhoton2016B][k] ); 
+			h_resol_NVtx_fit   [i][0][k][Gamma] -> Add( h_resol_NVtx   [i][SinglePhoton2016C][k] ); 
+			h_resol_NVtx_fit   [i][0][k][Gamma] -> Add( h_resol_NVtx   [i][SinglePhoton2016D][k] ); 
+			h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets40100 ][k] ); 
+			h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets100200][k] ); 
+			h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets200400][k] ); 
+			h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets400600][k] ); 
+			h_resol_NVtx_fit   [i][2][k][Gamma] -> Add( h_resol_NVtx   [i][GJets600Inf][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD200300      ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD300500      ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD500700      ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD7001000     ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD10001500    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD15002000    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][QCD2000Inf     ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets100200    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets200400    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets400600    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets600800    ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets8001200   ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets12002500  ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WJets2500Inf   ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][ZGJets         ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][ZNuNuGJets40130][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][ZGTo2LG        ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WGJets         ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][WGToLNuG       ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][TTGJets        ][k] ); 
+			h_resol_NVtx_fit   [i][1][k][Gamma] -> Add( h_resol_NVtx   [i][TGJets         ][k] ); 
+
+		}
+
+	}
+
+
+
+	 
+	// fits & final plots 
+
+	float ySR[3][3][nkanal];   // { zentral, error, chi2 (or error-mc in data/mc) } x { bkg-substraction(=data), pure-mc(=mc), data/mc } x { Zee, Zmumu, Gamma } x { ... }
+
+	for( int i = 0; i < nvariable_R; i++){
+
+		for( int a = 0; a < 3; a++      ){   // histos
+		for( int k = 0; k < nkanal; k++ ){
+
+			h_SR[a][pT   ][k] = new TH1F( "h_SR_" + histoID[a] + "_" + parameterID[pT   ] + "_" + kanalID[k], "h_SR pT"   ,  nbinpT   , minpT   , maxpT    );
+			h_SR[a][sumET][k] = new TH1F( "h_SR_" + histoID[a] + "_" + parameterID[sumET] + "_" + kanalID[k], "h_SR sumET",  nbinsumET, minsumET, maxsumET );
+			h_SR[a][NVtx ][k] = new TH1F( "h_SR_" + histoID[a] + "_" + parameterID[NVtx ] + "_" + kanalID[k], "h_SR NVtx ",  nbinNVtx , minNVtx , maxNVtx  );
+
+		}}
+
+		// ----- resolution: photon pT
+
+		float current_pT;
+
+		for( int k = 0; k < nbinpT; k++ ){
+
+			current_pT = minpT + (1.0*k+0.5)*(maxpT-minpT)/nbinpT; 
+
+			for( int m = 0; m < nkanal; m++ ){
+
+				if(  m == Gamma  &&  current_pT < 50.  ) { 
+
+					ySR[0][0][m] = 9999; 
+					ySR[1][0][m] = 9999; 
+					ySR[0][2][m] = 9999;
+					ySR[1][2][m] = 9999;
+					ySR[2][2][m] = 9999;
+
+				}
+
+				else {
+
+					GetResolution( m  , i, pT, k, ySR[0][0][m],    ySR[1][0][m],    ySR[2][0][m], "GJetsVoigtian" );
+					GetResolution( m  , i, pT, k, ySR[0][1][m],    ySR[1][1][m],    ySR[2][1][m], "GJetsFromMC"   );
+
+					GetRatioValues( ySR[0][0][m], ySR[1][0][m], ySR[0][1][m], ySR[1][1][m], ySR[0][2][m], ySR[1][2][m], ySR[2][2][m] );
+
+					h_SR[0][pT][m] -> SetBinContent( k+1, ySR[0][0][m] );
+					h_SR[0][pT][m] -> SetBinError  ( k+1, ySR[1][0][m] );
+					h_SR[1][pT][m] -> SetBinContent( k+1, ySR[0][2][m] );
+					h_SR[1][pT][m] -> SetBinError  ( k+1, ySR[1][2][m] );
+					h_SR[2][pT][m] -> SetBinContent( k+1, 1.0          );
+					h_SR[2][pT][m] -> SetBinError  ( k+1, ySR[2][2][m] );  
+
+				}
+
+			}
 
 		}
 		
-		PlotResolution( i, pT     );  cout << "final plot for " << parameterID[pT]    << " done !! " << endl; 
+
 
 
 		// ----- resolution: sumEt
 
-		//for( int k = 0; k < nbinsumET; k++ ){
+		// ... 
 
-		//	xsumET[k] = minsumET + (1.0*k+0.5)*(maxsumET-minsumET)/nbinsumET;  
-
-		//	xsumET[k] = xsumET[k]/1000;  
-
-		//	GetResolution( i, sumET, k, ysumET_A[k], esumET_A[k], chi2sumET_A[k], "GJetsVoigtian" );
-			//GetResolution( i, sumET, k, ysumET_B[k], esumET_B[k], chi2sumET_B[k], "GJetsFromMC"   );
-
-		//}
-
-		//PlotResolution( i, sumET  );  cout << "final plot for " << parameterID[sumET] << " done !! " << endl; 
 
 
 		// ----- resolution: number of vertices
 
 		for( int k = 0; k < nbinNVtx; k++ ){
 
-			xNVtx[k] = minNVtx + (1.0*k+0.5)*(maxNVtx-minNVtx)/nbinNVtx;
+			for( int m = 0; m < nkanal; m++ ){
 
-			GetResolution( Zee  , i, NVtx, k, yNVtx_A_Zee[k],    eNVtx_A_Zee[k],    chi2NVtx_A_Zee[k], "GJetsVoigtian" );
-			GetResolution( Zmumu, i, NVtx, k, yNVtx_A_Zmm[k],    eNVtx_A_Zmm[k],    chi2NVtx_A_Zmm[k], "GJetsVoigtian" );
-			GetResolution( Gamma, i, NVtx, k, yNVtx_A_lum[k],    eNVtx_A_lum[k],    chi2NVtx_A_lum[k], "GJetsVoigtian" );
+				GetResolution( m  , i, NVtx, k, ySR[0][0][m],    ySR[1][0][m],    ySR[2][0][m], "GJetsVoigtian" );
+				GetResolution( m  , i, NVtx, k, ySR[0][1][m],    ySR[1][1][m],    ySR[2][1][m], "GJetsFromMC"   );
 
-			//GetResolution( i, NVtx, k, yNVtx_B[k],  eNVtx_B[k],  chi2NVtx_B[k], "GJetsFromMC"    );
+
+				float e_mc; 
+
+				GetRatioValues( ySR[0][0][m], ySR[1][0][m], ySR[0][1][m], ySR[1][1][m], ySR[0][2][m], ySR[1][2][m], e_mc );
+
+
+				h_SR[0][NVtx][m] -> SetBinContent( k+1, ySR[0][0][m] );
+				h_SR[0][NVtx][m] -> SetBinError  ( k+1, ySR[1][0][m] );
+				h_SR[1][NVtx][m] -> SetBinContent( k+1, ySR[0][2][m] );
+				h_SR[1][NVtx][m] -> SetBinError  ( k+1, ySR[1][2][m] );
+				h_SR[2][NVtx][m] -> SetBinContent( k+1, 1.0          );
+				h_SR[2][NVtx][m] -> SetBinError  ( k+1, ySR[1][2][m] );  
+			}
 
 		}
 
-		PlotResolution( i, NVtx   );  cout << "final plot for "  << parameterID[NVtx]  << " done !! " << endl;
 
+		// ---------------------------------------------
+
+		PlotResolution( i, pT    );  cout << "final plot for " << parameterID[pT   ]  << " done !! " << endl;
+		//PlotResolution( i, sumET );  cout << "final plot for " << parameterID[sumET]  << " done !! " << endl;
+		PlotResolution( i, NVtx  );  cout << "final plot for " << parameterID[NVtx ]  << " done !! " << endl;
+
+		// ---------------------------------------------
 
 	}
 
@@ -341,89 +392,130 @@ void MET3(){
 
 
 
-void PlotResolution( int ivar, int parameter ){
+void PlotResolution( int ivar, int param ){
 
-	TCanvas* c = new TCanvas("resol_" + variableID[ivar] + "_" + parameterID[parameter], variableID[ivar] + "_" + parameterID[parameter], 600, 600);
+	h_SR[0][param][0] -> SetMarkerStyle( 22 );   h_SR[0][param][0] -> SetMarkerSize( 1.2*h_SR[0][param][0]->GetMarkerSize() );
+	h_SR[0][param][1] -> SetMarkerStyle( 23 );   h_SR[0][param][1] -> SetMarkerSize( 1.2*h_SR[0][param][0]->GetMarkerSize() );
+	h_SR[0][param][2] -> SetMarkerStyle( 21 );
 
-	TMultiGraph*  TheMultiGraph = new TMultiGraph();   // if >1 TGraphErrors plotted on the same canvas
-
-	TGraphErrors* TheGraph[3]; 
-
-	if( parameter == pT    ){
- 
-		TheGraph[Zee  ] = new TGraphErrors(nbinpT   , xpT   , ypT_A_Zee   , 0, epT_A_Zee    );
-		TheGraph[Zmumu] = new TGraphErrors(nbinpT   , xpT   , ypT_A_Zmm   , 0, epT_A_Zmm    );
-		TheGraph[Gamma] = new TGraphErrors(nbinpT   , xpT   , ypT_A_lum   , 0, epT_A_lum    );
-
-	}
-
-	if( parameter == sumET ){
-
-		 TheGraph[Zee  ] = new TGraphErrors(nbinsumET, xsumET, ysumET_A_Zee, 0, esumET_A_Zee );
-		 TheGraph[Zmumu] = new TGraphErrors(nbinsumET, xsumET, ysumET_A_Zmm, 0, esumET_A_Zmm );
-		 TheGraph[Gamma] = new TGraphErrors(nbinsumET, xsumET, ysumET_A_lum, 0, esumET_A_lum );
-
-	}
+	h_SR[1][param][0] -> SetMarkerStyle( 22 );   h_SR[1][param][0] -> SetMarkerSize( 1.2*h_SR[1][param][0]->GetMarkerSize() );
+	h_SR[1][param][1] -> SetMarkerStyle( 23 );   h_SR[1][param][1] -> SetMarkerSize( 1.2*h_SR[1][param][0]->GetMarkerSize() );
+	h_SR[1][param][2] -> SetMarkerStyle( 21 );
 
 
-	if( parameter == NVtx  ){
+	h_SR[0][param][0] -> SetMarkerColor( kBlue );
+	h_SR[0][param][1] -> SetMarkerColor( kRed  );
+	h_SR[0][param][2] -> SetMarkerColor( kGreen);
 
-		TheGraph[Zee  ] = new TGraphErrors(nbinNVtx , xNVtx , yNVtx_A_Zee , 0, eNVtx_A_Zee  );
-		TheGraph[Zmumu] = new TGraphErrors(nbinNVtx , xNVtx , yNVtx_A_Zmm , 0, eNVtx_A_Zmm  );
-		TheGraph[Gamma] = new TGraphErrors(nbinNVtx , xNVtx , yNVtx_A_lum , 0, eNVtx_A_lum  );
+	h_SR[1][param][0] -> SetMarkerColor( kBlue );
+	h_SR[1][param][1] -> SetMarkerColor( kRed  );
+	h_SR[1][param][2] -> SetMarkerColor( kGreen);
 
-	}
- 
-
-	TheGraph[0] -> SetTitle("Z #rightarrow ee");
-	TheGraph[1] -> SetTitle("Z #rightarrow #mu#mu");
-	TheGraph[2] -> SetTitle("#gamma");
-
-	TheGraph[0] -> SetMarkerStyle( 22 );   TheGraph[0] -> SetMarkerSize( 1.2*TheGraph[0]->GetMarkerSize() );
-	TheGraph[1] -> SetMarkerStyle( 23 );   TheGraph[1] -> SetMarkerSize( 1.2*TheGraph[0]->GetMarkerSize() );
-	TheGraph[2] -> SetMarkerStyle( 21 );
-
-	TheGraph[0] -> SetMarkerColor( kBlue );
-	TheGraph[1] -> SetMarkerColor( kRed  );
-	TheGraph[2] -> SetMarkerColor( kGreen);
 	
-	TheGraph[0] -> SetLineColor( kBlue  );
-	TheGraph[1] -> SetLineColor( kRed   );
-	TheGraph[2] -> SetLineColor( kGreen );
+	h_SR[0][param][0] -> SetLineColor( kBlue  );
+	h_SR[0][param][1] -> SetLineColor( kRed   );
+	h_SR[0][param][2] -> SetLineColor( kGreen );
 
-	TheGraph[0] -> SetFillStyle(0);
-	TheGraph[1] -> SetFillStyle(0);
-	TheGraph[2] -> SetFillStyle(0);
+	h_SR[1][param][0] -> SetLineColor( kBlue  );
+	h_SR[1][param][1] -> SetLineColor( kRed   );
+	h_SR[1][param][2] -> SetLineColor( kGreen );
 
-	TheMultiGraph -> Add( TheGraph[0] );
-	TheMultiGraph -> Add( TheGraph[1] );
-	TheMultiGraph -> Add( TheGraph[2] );
 
-	TheMultiGraph -> Draw("AP");
+	h_SR[0][param][0] -> SetFillStyle(0);
+	h_SR[0][param][1] -> SetFillStyle(0);
+	h_SR[0][param][2] -> SetFillStyle(0);
 
-	TheMultiGraph -> GetXaxis() -> SetTitle( parameterIDfancy[parameter] );
-	TheMultiGraph -> GetYaxis() -> SetTitle( sigma_variable[ivar] );
-	TheMultiGraph -> GetYaxis() -> SetRangeUser( 0.0, 50.0 );
+	h_SR[1][param][0] -> SetFillStyle(0);
+	h_SR[1][param][1] -> SetFillStyle(0);
+	h_SR[1][param][2] -> SetFillStyle(0);
 
-	c-> BuildLegend(); 
 
-	//TheGraph[0] -> Draw("AP"      );
-	//TheGraph[1] -> Draw("AP, same");
-	//TheGraph[2] -> Draw("AP, same");
+	h_SR[2][param][0] -> SetLineColor(11);
+	h_SR[2][param][1] -> SetLineColor(11);
+	h_SR[2][param][2] -> SetLineColor(11);
 
-	//TLatex tex;
-	//tex.SetTextAlign(13);
-	//tex.SetTextSize(0.03);
-	//tex.SetNDC();
-	//tex.DrawLatex ( 0.1, 0.95, "CMS Preliminary                     2.318 fb^{-1} (13TeV)" );
+	h_SR[2][param][0] -> SetFillColor(11);
+	h_SR[2][param][1] -> SetFillColor(11);
+	h_SR[2][param][2] -> SetFillColor(11);
+
+	//----------------------------------------------------------
+
+	TCanvas* c = new TCanvas("resol_" + variableID_R[ivar] + "_" + parameterID[param], variableID_R[ivar] + "_" + parameterID[param], 600, 600);		
+
+	TPad* pad1 = new TPad("pad1", "pad1", 0.05, 0.0, 1.00, 0.3);
+	TPad* pad2 = new TPad("pad2", "pad2", 0.05, 0.3, 1.00, 1.0);
+
+	pad1 -> SetTopMargin   (0.08);
+	pad1 -> SetBottomMargin(0.35);
+	pad1 -> Draw();
+
+	pad2 -> SetTopMargin   (0.08);
+	pad2 -> SetBottomMargin(0.02);
+	pad2 -> Draw();
+
+	//----------------------------------------------------------
+
+	pad2 -> cd();
+
+	h_SR[0][param][0] -> SetTitle("");
+
+	h_SR[0][param][0] -> SetStats(false);
+
+ 	SetAxis( h_SR[0][param][0], "", sigma_variable[ivar], 1.5, 1.0 );
+
+	( ivar < 2 )  ?  h_SR[0][param][0] -> GetYaxis() -> SetRangeUser(0., 40.)  :  h_SR[0][param][0] -> GetYaxis() -> SetRangeUser(0., 2.5);
+
+	h_SR[0][param][0] -> Draw("e"      );	
+	h_SR[0][param][1] -> Draw("e, same");
+	h_SR[0][param][2] -> Draw("e, same");
 
 	DrawLatex( 61, 0.100, 0.945, 0.050, 11, "CMS"                                             );
- 	DrawLatex( 52, 0.205, 0.945, 0.030, 11, "Preliminary"                                     );
+
+     	DrawLatex( 52, 0.205, 0.945, 0.030, 11, "Preliminary"                                     );
+
 	DrawLatex( 42, 0.900, 0.945, 0.050, 31, Form("%.3f fb^{-1} (13TeV, 2016)", TheLuminosity) );
 
+  	pad2 -> RedrawAxis();
 
-	c -> SaveAs( "resol/" + variableID[ivar] + "_" + parameterID[parameter] + ".pdf" ); 
-	c -> SaveAs( "resol/" + variableID[ivar] + "_" + parameterID[parameter] + ".png" ); 
+	//----------------------------------------------------------
+
+	TLegend* TheLegend = new TLegend( 0.18, 0.65, 0.38, 0.88 );
+
+	TheLegend -> SetBorderSize(0);
+
+	TheLegend -> SetTextSize(0.050);
+
+	TheLegend -> AddEntry( h_SR[0][param][0], kanalIDfancy[0], "lp" ); 
+	TheLegend -> AddEntry( h_SR[0][param][1], kanalIDfancy[1], "lp" ); 
+	TheLegend -> AddEntry( h_SR[0][param][2], kanalIDfancy[2], "lp" ); 
+
+	TheLegend -> Draw();
+
+	//----------------------------------------------------------
+
+	pad1 -> cd();
+
+	h_SR[1][param][0] -> SetTitle("");
+	h_SR[1][param][0] -> SetStats(false);   // it has priority over the gStyle->SetOptStats option
+
+ 	SetAxis( h_SR[1][param][0], parameterIDfancy[param], "data / MC ", 1.4, 0.5 );
+
+      	( ivar < 2 )  ?  h_SR[1][param][0] -> GetYaxis() -> SetRangeUser(0.85, 1.15)  :  h_SR[1][param][0] -> GetYaxis() -> SetRangeUser(0.5, 2.0);
+
+	h_SR[1][param][0] -> Draw("ep"      );
+	h_SR[2][param][0] -> Draw("e2, same");
+	//h_SR[2][param][1] -> Draw("e2, same");
+	//h_SR[2][param][2] -> Draw("e2, same");
+	h_SR[1][param][1] -> Draw("ep, same");
+	h_SR[1][param][2] -> Draw("ep, same");
+	h_SR[1][param][0] -> Draw("ep, same");
+
+	pad1 -> RedrawAxis();
+
+	//----------------------------------------------------------
+
+	c -> SaveAs( "resol/" + variableID_R[ivar] + "_" + parameterID[param] + ".pdf" ); 
+	c -> SaveAs( "resol/" + variableID_R[ivar] + "_" + parameterID[param] + ".png" ); 
 
 }
 
@@ -432,8 +524,13 @@ void GetResolution( int ch, int whichvar, int parameter, int ibin, float& resol,
 
 	int ivar = whichvar; 
 
+	float tacon, liga, mediasnegras; 
+
+	if( ivar < 2 ) { tacon = -10.; liga = 10.; mediasnegras = 0.; }
+	if( ivar ==2 ) { tacon =   0.; liga =  2.; mediasnegras = 1.; }
+
 	RooRealVar x           ( "variable"   , "variable"          ,  0  , -500, 500 );   // random variable; redefine its range
-	RooRealVar Gauss_mean  ( "Gauss_mean" , "Gauss mean"        ,  0  ,  -10, 10  );  
+	RooRealVar Gauss_mean  ( "Gauss_mean" , "Gauss mean"        ,  mediasnegras, tacon, liga );  
 	RooRealVar BW_gamma    ( "BW_gamma"   , "Breit-Wigner gamma",  2.3,    0, 100 );  
 	RooRealVar Gauss_sigma ( "Gauss_sigma", "Gauss sigma"       , 10  ,    0, 100 );  
 
@@ -477,7 +574,7 @@ void GetResolution( int ch, int whichvar, int parameter, int ibin, float& resol,
 
 	}
 
-	int low = min + ibin*width; cout << low << endl;
+	int low = min + ibin*width; //cout << low << endl;
 	int up  = low + width; 
 
 	// convert TH1F to RooDataHist
@@ -503,13 +600,16 @@ void GetResolution( int ch, int whichvar, int parameter, int ibin, float& resol,
 
 	RooFitResult* result; 
 
-	if( GJetsOrigin == "GJetsVoigtian" ) result = modelA.fitTo( data, Extended(kFALSE), RooFit::Save(kTRUE) );   
-	if( GJetsOrigin == "GJetsFromMC"   ) result = modelB.fitTo( data, Extended(kFALSE), RooFit::Save(kTRUE) );   
+	if( GJetsOrigin == "GJetsVoigtian" ) result = modelA.fitTo( data , Extended(kFALSE), RooFit::Save(kTRUE) );   
+	if( GJetsOrigin == "GJetsFromMC"   ) result =  voigt.fitTo( gjets, Extended(kFALSE), RooFit::Save(kTRUE) );   
 
 	// --------  -------  -------  -------  -------  -------  -------  -------  ------- 
 
 	double sigma  = Gauss_sigma.getVal()  ;   double gamma  = BW_gamma.getVal()   ;
   	double esigma = Gauss_sigma.getError();   double egamma = BW_gamma.getError ();
+
+	double  scala  = Gauss_mean.getVal();
+	double escala = Gauss_mean.getError();
 
   	double Vss = result -> correlation( Gauss_sigma, Gauss_sigma );  double Vsg = result -> correlation( Gauss_sigma, BW_gamma );
   	double Vgs = result -> correlation( BW_gamma   , Gauss_sigma );  double Vgg = result -> correlation( BW_gamma   , BW_gamma );
@@ -517,10 +617,24 @@ void GetResolution( int ch, int whichvar, int parameter, int ibin, float& resol,
  	double FWHM  = GetFWHM     (sigma, gamma                                    );
   	double eFWHM = GetFWHMerror(sigma, gamma, esigma, egamma, Vss, Vsg, Vgs, Vgg);
 
-	resol  =  FWHM/2.3546;
-	eresol = eFWHM/2.3546;
+
+	if(  ivar == parall_R  ||  ivar == transv_R  ) {
+
+		resol  =  FWHM/2.3546;  
+		eresol = eFWHM/2.3546;
+
+	}
+
+	if(  ivar == scale  ) {
+
+		resol  =  scala;  
+		eresol = escala;
+
+	}
  
 	// --------  -------  -------  -------  -------  -------  -------  -------  ------- 
+
+	if( GJetsOrigin == "GJetsFromMC" ) return; 
 
 	TCanvas* mycanvas = new TCanvas("c", "c", 600, 600);
 
@@ -528,7 +642,7 @@ void GetResolution( int ch, int whichvar, int parameter, int ibin, float& resol,
 
 	frame -> GetXaxis() -> SetRangeUser( -200, 200 );
 
-	frame -> GetXaxis() -> SetTitle(variableIDfancy[ivar]);
+	frame -> GetXaxis() -> SetTitle(variableIDfancy_R[ivar]);
 
 	data.plotOn( frame );
 
@@ -541,21 +655,50 @@ void GetResolution( int ch, int whichvar, int parameter, int ibin, float& resol,
 	frame -> Draw();
 
 	float chi2 = frame -> chiSquare();
+
 	chichi = chi2; 
 
-	/*TLatex mylatex;
-	mylatex.SetTextAlign(13);
-	mylatex.SetTextSize(0.03);
-	mylatex.SetNDC();
-	mylatex.DrawLatex ( 0.1, 0.95, Form("CMS Preliminary  2.318 fb^{-1} (13TeV)   #chi^{2} = %5.2f", chi2) );*/
 
 	DrawLatex( 61, 0.100, 0.945, 0.050, 11, "CMS"                                             );
  	DrawLatex( 52, 0.205, 0.945, 0.030, 11, "Preliminary"                                     );
 	DrawLatex( 42, 0.900, 0.945, 0.050, 31, Form("%.3f fb^{-1} (13TeV, 2016)", TheLuminosity) );
-	DrawLatex( 42, 0.840, 0.900, 0.030, 31, Form("#chi^{2} = %5.2f ", chi2)                   );
+	DrawLatex( 42, 0.150, 0.800, 0.040, 11, Form("#chi^{2} = %5.2f ", chi2)                   );
+	//DrawLatex( 42, 0.150, 0.700, 0.040, 11, Form( "%5.2f", frame -> chiSquare("modelA", "h_data", 0) ));
+	//DrawLatex( 42, 0.150, 0.600, 0.040, 11, Form( "%5.2f", frame -> chiSquare("modelA", "h_data", 1) ));
+	//DrawLatex( 42, 0.150, 0.500, 0.040, 11, Form( "%5.2f", frame -> chiSquare("modelA", "h_data", 2) ));
 
-	mycanvas -> SaveAs( Form( "fit/" + kanalID[ch] + "_" + variableID[ivar] + "_" + parameterID[parameter] +  "_%dto%d.pdf", low, up ) );
-	mycanvas -> SaveAs( Form( "fit/" + kanalID[ch] + "_" + variableID[ivar] + "_" + parameterID[parameter] +  "_%dto%d.png", low, up ) );
+
+
+ 	//cout << "\n\n\n\n" << endl; 
+
+  	//for ( int i = 0; i < frame -> numItems(); i++ ) {
+
+    	//	TString obj_name = frame -> nameOf(i); 
+
+	//	if ( obj_name == "" ) continue;
+
+    	//	cout << Form("%d. '%s'\n", i, obj_name.Data() );
+
+  	//}
+
+ 	//cout << "\n\n\n\n" << endl; 
+
+	TLegend* mylegend = new TLegend( 0.60, 0.55, 0.85, 0.85 );
+
+	mylegend -> AddEntry( frame -> findObject("h_data"                            ), "data"         , "p" );
+
+	mylegend -> AddEntry( frame -> findObject("modelA_Norm[variable]"             ), "fit"          , "l" );
+
+	mylegend -> AddEntry( frame -> findObject("modelA_Norm[variable]_Comp[]"      ), "signal-fitted", "l" );
+
+	mylegend -> AddEntry( frame -> findObject("modelA_Norm[variable]_Comp[bkgpdf]"), "bkg-fitted"   , "f" );
+
+	mylegend->Draw();
+
+
+	mycanvas -> SaveAs( Form( "fit/" + kanalID[ch] + "_" + variableID_R[ivar] + "_" + parameterID[parameter] +  "_%dto%d.pdf", low, up ) );
+	mycanvas -> SaveAs( Form( "fit/" + kanalID[ch] + "_" + variableID_R[ivar] + "_" + parameterID[parameter] +  "_%dto%d.png", low, up ) );
+
 }
 
  
@@ -586,6 +729,14 @@ double GetFWHMerror( double sigma, double gamma, double esigma, double egamma, d
 	double p4 = dFWHMdgamma * dFWHMdgamma * egamma * egamma * pow( Vgg, 2 );
 
 	return sqrt ( p1 + p2 + p3 + p4 );
+
+}
+
+void GetRatioValues( float x, float ex, float y, float ey, float& z, float& ez_data, float& ez_mc ){
+
+	z       = x/y       ; 
+	ez_data = x/y * ex/x;
+	ez_mc   = x/y * ey/y;  
 
 }
 

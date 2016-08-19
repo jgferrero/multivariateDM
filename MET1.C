@@ -14,6 +14,7 @@ void MET1(){
 void FillHistograms(){
 
 	for( int j = 0; j < nprocess; j++ ){
+	//for( int j = alpha; j < omega+1; j++ ){
 
 		cout << "next n-tupla: " << processID[j] << endl; 
 
@@ -28,14 +29,18 @@ void FillHistograms(){
 
 		TFile* allhistos = new TFile("histograms/" + allhistosWriteTo +".root", "update");
 
-		for( int i = 0; i < nvariable; i++ ){
+		for( int j = 0; j < nprocess; j++ ){
+		//for( int j = alpha; j < omega+1; j++ ){ 
 
-			for( int j = 0; j < nprocess; j++ ){ 
+			for( int i = 0; i < nvariable_G; i++ ){
 
 				h_global_W[i][j] -> Write();  
 
-				if( i == MET ) continue;
-							
+			}
+
+
+			for( int i = 0; i < nvariable_R; i++ ){		
+						
 				for( int k = 0; k < nbinpT   ; k++) 	h_resol_pT_W   [i][j][k] -> Write();
 				for( int k = 0; k < nbinsumET; k++)	h_resol_sumET_W[i][j][k] -> Write();
 				for( int k = 0; k < nbinNVtx ; k++)	h_resol_NVtx_W [i][j][k] -> Write();
@@ -62,6 +67,23 @@ void FillHistogram( int process ){
 
 	int TheKanal = kanal[process]; 
 
+
+	TFile* kfactorFile = new TFile( "kfactor.root", "read");
+
+	TF1*  kfactor_Gjets = (TF1*)  kfactorFile -> Get( "gj-40"    );
+	TH1F* kfactor_ZnnG  = (TH1F*) kfactorFile -> Get( "znng-130" );  
+	TH1F* kfactor_ZllG  = (TH1F*) kfactorFile -> Get( "zllg-130" );  
+
+
+	TFile* f_pu = new TFile( "pileup/PU-reweighting_15Aug_old-xs.root", "read");
+
+	TH1F* h_pu[nkanal];
+
+	h_pu[Zee  ] = (TH1F*) f_pu -> Get( "h_pu-reweighting_" + kanalID[Zee  ] );
+	h_pu[Zmumu] = (TH1F*) f_pu -> Get( "h_pu-reweighting_" + kanalID[Zmumu] );
+	h_pu[Gamma] = (TH1F*) f_pu -> Get( "h_pu-reweighting_" + kanalID[Gamma] );
+ 
+
 	TFile* TheFile = new TFile( NTuplaDir[TheKanal] + sampleID[process] + "/METtree.root", "read"); 
 
 	TH1F* TheCount = (TH1F*) TheFile -> Get( "Count" );  float TheDenominator = TheCount -> GetEntries(); // cout << "total nentries from the histo = " << TheDenominator << endl;
@@ -69,7 +91,7 @@ void FillHistogram( int process ){
 	TTree* tree = (TTree*) TheFile -> Get( "METtree" );
 
 
-	int nLepGood20                          ; 
+	int nLepGood20                          ;
 	float zll_pt                            ;
 	float zll_phi                           ; 
 	float zll_mass                          ; 
@@ -84,7 +106,7 @@ void FillHistogram( int process ){
 	float gamma_phi[3]                      ;
 
 	int   nLepGood10                        ;  
-	float lep_pt                            ;  
+	float lep_pt[4]                         ;  
 
 	int   HBHENoiseFilter                   ;
 	int   HBHENoiseIsoFilter                ;
@@ -120,6 +142,10 @@ void FillHistogram( int process ){
 	float puWeight                          ;
 	float genWeight	                        ;
 
+	int   nGenPart                          ; 
+	int   GenPart_pdgId[40]                 ;
+	float GenPart_pt[40]                    ;
+
 
 	if( TheKanal == Zee || TheKanal == Zmumu ){
 
@@ -142,9 +168,10 @@ void FillHistogram( int process ){
 		tree -> SetBranchAddress( "gamma_phi"                              , &gamma_phi                          );
 
 		tree -> SetBranchAddress( "nLepGood10"                             , &nLepGood10                         );
-		tree -> SetBranchAddress( "lep_pt"                                 , &lep_pt                             );
-
 	}
+
+	tree -> SetBranchAddress( "lep_pt"                                 , &lep_pt                             );
+
 
 	tree -> SetBranchAddress( "Flag_HBHENoiseFilter"                   , &HBHENoiseFilter                    );
 	tree -> SetBranchAddress( "Flag_HBHENoiseIsoFilter"                , &HBHENoiseIsoFilter                 );
@@ -187,44 +214,69 @@ void FillHistogram( int process ){
 		tree -> SetBranchAddress( "genWeight"                              , &genWeight                          );
 
 	}
+
+	if( process == GJets40100 || process == GJets100200 || process == GJets200400|| process == GJets400600 || process == GJets600Inf || process == ZGJets || process == ZGTo2LG ){
+
+			tree -> SetBranchAddress( "nGenPart"     , &nGenPart      );
+			tree -> SetBranchAddress( "GenPart_pdgId", &GenPart_pdgId );
+			tree -> SetBranchAddress( "GenPart_pt"   , &GenPart_pt    );
+
+	}
 	
 
 
-	for( int i = 0; i < nvariable; i++ ){
+	for( int i = 0; i < nvariable_G; i++ ){
 
-		if( i != MET ) h_global_W[i][process] = new TH1F( "h_global_" + variableID[i] + "_" + kanalID[TheKanal] + "_" + processID[process], variableID[i], nbinuPara, minuPara, maxuPara );
-		if( i == MET ) h_global_W[i][process] = new TH1F( "h_global_" + variableID[i] + "_" + kanalID[TheKanal] + "_" + processID[process], variableID[i], nbinMET  , minMET  , maxMET   );
+		if( i == parall_R ) h_global_W[i][process] = new TH1F( "h_global_" + variableID_G[i] + "_" + kanalID[TheKanal] + "_" + processID[process], variableID_G[i], nbinuPara, minuPara, maxuPara );
+		if( i == transv_R ) h_global_W[i][process] = new TH1F( "h_global_" + variableID_G[i] + "_" + kanalID[TheKanal] + "_" + processID[process], variableID_G[i], nbinuPerp, minuPerp, maxuPerp );
+		if( i == MET      ) h_global_W[i][process] = new TH1F( "h_global_" + variableID_G[i] + "_" + kanalID[TheKanal] + "_" + processID[process], variableID_G[i], nbinMET  , minMET  , maxMET   );
+		if( i == VpT      ) h_global_W[i][process] = new TH1F( "h_global_" + variableID_G[i] + "_" + kanalID[TheKanal] + "_" + processID[process], variableID_G[i], nbinpT   , minpT   , maxpT    );
+		if( i == nvert    ) h_global_W[i][process] = new TH1F( "h_global_" + variableID_G[i] + "_" + kanalID[TheKanal] + "_" + processID[process], variableID_G[i], nbinnvert, minnvert, maxnvert );
 
-		if( i == MET) continue;
+	}	
+
+	//for( int i = 0; i < nvariable_R; i++ ){
 
 		for( int k = 0; k < nbinpT; k++ ){
 
-			h_resol_pT_W   [i][process][k] = new TH1F( Form("h_resol_pT_" + variableID[i] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution pT"        , nbinuPara, minuPara, maxuPara );
+			h_resol_pT_W   [parall_R][process][k] = new TH1F( Form("h_resol_pT_" + variableID_R[parall_R] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution pT"        , nbinuPara, minuPara, maxuPara );
+
+			h_resol_pT_W   [transv_R][process][k] = new TH1F( Form("h_resol_pT_" + variableID_R[transv_R] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution pT"        , nbinuPerp, minuPerp, maxuPerp );
+
+			h_resol_pT_W   [scale   ][process][k] = new TH1F( Form("h_resol_pT_" + variableID_R[scale   ] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution pT"        , nbinscale, minscale, maxscale );
 
 		}
 
 		for( int k = 0; k < nbinsumET; k++ ){
 
-			h_resol_sumET_W[i][process][k] = new TH1F( Form("h_resol_sumET_" + variableID[i] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution sum ET"    , nbinuPara, minuPara, maxuPara );
+			h_resol_sumET_W[parall_R][process][k] = new TH1F( Form("h_resol_sumET_" + variableID_R[parall_R] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution sum ET"    , nbinuPara, minuPara, maxuPara );
+
+			h_resol_sumET_W[transv_R][process][k] = new TH1F( Form("h_resol_sumET_" + variableID_R[transv_R] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution sum ET"    , nbinuPerp, minuPerp, maxuPerp );
+
+			h_resol_sumET_W[scale   ][process][k] = new TH1F( Form("h_resol_sumET_" + variableID_R[scale   ] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution sum ET"    , nbinscale, minscale, maxscale );
 
 		}
 
 		for( int k = 0; k < nbinNVtx; k++ ){
 
-			h_resol_NVtx_W [i][process][k] = new TH1F( Form("h_resol_NVtx_"  + variableID[i] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution num of vtx", nbinuPara, minuPara, maxuPara );
+			h_resol_NVtx_W [parall_R][process][k] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[parall_R] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution num of vtx", nbinuPara, minuPara, maxuPara );
+
+			h_resol_NVtx_W [transv_R][process][k] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[transv_R] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution num of vtx", nbinuPerp, minuPerp, maxuPerp );
+
+			h_resol_NVtx_W [scale   ][process][k] = new TH1F( Form("h_resol_NVtx_"  + variableID_R[scale   ] + "_" + kanalID[TheKanal] + "_"  + processID[process] + "_%d", k), "resolution num of vtx", nbinscale, minscale, maxscale );
 
 		}
 
-	}
+	//}
 
 
 	int nentries = tree -> GetEntries();//cout << " nentries = " << nentries << endl;
 
 	_TotalEntries[process] = nentries; 
 
-	if (  isData[process] &&  RunOverAllData == false ) nentries = MaxEntriesData; 
+	if (  isData[process]  &&  RunOverAllData == false ) nentries = MaxEntriesData; 
 		
-	if ( !isData[process] &&  RunOverAllMC   == false ) nentries = MaxEntriesMC  ;
+	if ( !isData[process]  &&  RunOverAllMC   == false ) nentries = MaxEntriesMC  ;
 
 	float baseW = 1.0;   if ( !isData[process] ) baseW = xs[process]/TheDenominator;  //cout << xs[process] << " -- " << nentries << " -- " << TheDenominator << " -- " << baseW << endl; 
 
@@ -234,7 +286,7 @@ void FillHistogram( int process ){
 
 
 
-		if( ievt%10000 == 0 )  cout << "  >>  evt " << ievt << endl;
+		if( ievt%10000 == 0 )  cout << processID[process] << "   >>  evt " << ievt << endl;
 
 		tree -> GetEntry(ievt);	
 
@@ -247,6 +299,8 @@ void FillHistogram( int process ){
 			if ( nLepGood20 < 2                    ) continue; 
 
 			if ( zll_mass < 81. || zll_mass > 101. ) continue; 
+
+			if ( lep_pt[0] < 25 || lep_pt[1] < 20  ) continue; 	//cout << lep_pt[0] << " -- " << lep_pt[1] << endl; 
 
 
 			if( isData[process] ){   // triggers
@@ -275,7 +329,8 @@ void FillHistogram( int process ){
 
 			if( isData[process] ){   // triggers
 
-				//if( HLT_Photon30 == 0  &&  HLT_Photon50 == 0  &&  HLT_Photon75 == 0  &&  HLT_Photon90 == 0  &&  HLT_Photon120 == 0 ) continue;
+
+				if( HLT_Photon30 == 0  &&  HLT_Photon50 == 0  &&  HLT_Photon75 == 0  &&  HLT_Photon90 == 0  &&  HLT_Photon120 == 0 ) continue;
 
 
 				if( HLT_Photon120 == 1 ) eventW *= HLT_Photon120_Prescale;
@@ -326,9 +381,11 @@ void FillHistogram( int process ){
  
 		if( !isData[process] ){
 
-			eventW *= baseW    ;
+			eventW *= baseW    ; 	
 
-			eventW *= puWeight ;
+			//cout << nVert << " -- " << h_pu[TheKanal] -> GetBinContent( h_pu[TheKanal]->FindBin(nVert) ) << endl;	
+
+			eventW *= puWeight * h_pu[TheKanal] -> GetBinContent( h_pu[TheKanal]->FindBin(nVert) );  		
 
 			eventW *= genWeight/abs(genWeight);
 
@@ -336,20 +393,58 @@ void FillHistogram( int process ){
 
 
 
+		// ----- k-factor ----------------------------------------
+ 
+		if( process == GJets40100 || process == GJets100200 || process == GJets200400|| process == GJets400600 || process == GJets600Inf || process == ZGJets || process == ZGTo2LG ){
+
+			int genindex = -1; 
+
+      			for( int j = 0; j < nGenPart; j++){
+
+	  			if( abs( GenPart_pdgId[j] ) == 22 ){
+
+	      				genindex = j;
+
+	      				break;
+	    
+				}
+
+			}
+
+			float gamma_pt_GEN = GenPart_pt[genindex];
+
+			if( process == GJets40100 || process == GJets100200 || process == GJets200400|| process == GJets400600 || process == GJets600Inf ){
+
+				eventW *= kfactor_Gjets -> Eval( gamma_pt_GEN );
+
+			}
+
+			else if( process == ZGJets ){
+
+				float TheFactor = kfactor_ZnnG -> GetBinContent( kfactor_ZnnG->FindBin(gamma_pt_GEN) ); 
+
+				if( TheFactor > 1. )  eventW *= TheFactor; 
+
+			}
+
+			else if( process == ZGTo2LG ){
+
+				float TheFactor = kfactor_ZllG -> GetBinContent( kfactor_ZllG->FindBin(gamma_pt_GEN) ); 
+
+				if( TheFactor > 1. )  eventW *= TheFactor; 
+
+			}
+
+			
+		}
+
+		// -------------------------------------------------------
+
 		float boson_pt, boson_phi;	
 	
 		if ( TheKanal == Zee || TheKanal == Zmumu ) boson_pt = zll_pt     ;  boson_phi = zll_phi     ;   
 
 		if ( TheKanal == Gamma )                    boson_pt = gamma_pt[0];  boson_phi = gamma_phi[0];
-
-
-		if( boson_pt < minpT || boson_pt >= maxpT || met_sumEt < minsumET || met_sumEt >= maxsumET || nVert < minNVtx || nVert >= maxNVtx) continue;
-
-		//cout << ievt << " -- " << ngamma << " -- " << gamma_pt << " -- " << met_sumEt << " -- " << nVert << endl;
-
-		int l = floor(    nbinpT    * (boson_pt    - minpT   ) / (maxpT    - minpT   )    ); //cout << " l = " << l << endl;
-		int m = floor(    nbinsumET * (met_sumEt   - minsumET) / (maxsumET - minsumET)    ); //cout << " m = " << m << endl;
-		int n = floor(    nbinNVtx  * (nVert       - minNVtx ) / (maxNVtx  - minNVtx )    ); //cout << " n = " << n << endl;
 
 
 		TVector2 qT, ET, uT; 
@@ -360,22 +455,41 @@ void FillHistogram( int process ){
 
 		uT = -1* ( ET + qT ); 
 
-		float uPara = (  uT.Px() * qT.Px() + uT.Py() * qT.Py()  ) / qT.Mod() + qT.Mod(); // cout <<  uPara << endl;
+
+		float uPara = (  uT.Px() * qT.Px() + uT.Py() * qT.Py()  ) / qT.Mod();
+
+		float Scale = abs(uPara)/qT.Mod();   // cout << abs(uPara) << " -- " << qT.Mod() <<  " -- " << Scale << endl; 
+ 
+		uPara += qT.Mod();   // cout <<  uPara << endl;
+
 		float uPerp = (  uT.Px() * qT.Py() - uT.Py() * qT.Px()  ) / qT.Mod();
 
 
-		h_global_W     [parall][process]    -> Fill( uPara , eventW );  
-		h_global_W     [transv][process]    -> Fill( uPerp , eventW );
-		h_global_W     [MET   ][process]    -> Fill( met_pt, eventW );
 
-		h_resol_pT_W   [parall][process][l] -> Fill( uPara , eventW ); 
-		h_resol_pT_W   [transv][process][l] -> Fill( uPerp , eventW );	
+		h_global_W     [parall_G][process]    -> Fill( uPara   , eventW );  
+		h_global_W     [transv_G][process]    -> Fill( uPerp   , eventW );
+		h_global_W     [MET     ][process]    -> Fill( met_pt  , eventW );
+		h_global_W     [VpT     ][process]    -> Fill( boson_pt, eventW );
+		h_global_W     [nvert   ][process]    -> Fill( nVert   , eventW );
 
-		h_resol_sumET_W[parall][process][m] -> Fill( uPara , eventW ); 
-		h_resol_sumET_W[transv][process][m] -> Fill( uPerp , eventW );
 
-		h_resol_NVtx_W [parall][process][n] -> Fill( uPara , eventW );
-		h_resol_NVtx_W [transv][process][n] -> Fill( uPerp , eventW );			
+		if( boson_pt < minpT || boson_pt >= maxpT || met_sumEt < minsumET || met_sumEt >= maxsumET || nVert < minNVtx || nVert >= maxNVtx) continue;
+
+		int l = floor(    nbinpT    * (boson_pt    - minpT   ) / (maxpT    - minpT   )    ); //cout << " l = " << l << endl;
+		int m = floor(    nbinsumET * (met_sumEt   - minsumET) / (maxsumET - minsumET)    ); //cout << " m = " << m << endl;
+		int n = floor(    nbinNVtx  * (nVert       - minNVtx ) / (maxNVtx  - minNVtx )    ); //cout << " n = " << n << endl;
+
+		h_resol_pT_W   [parall_R][process][l] -> Fill( uPara , eventW ); 
+		h_resol_pT_W   [transv_R][process][l] -> Fill( uPerp , eventW );	
+		h_resol_pT_W   [scale   ][process][l] -> Fill( Scale , eventW );	
+
+		h_resol_sumET_W[parall_R][process][m] -> Fill( uPara , eventW ); 
+		h_resol_sumET_W[transv_R][process][m] -> Fill( uPerp , eventW );
+		h_resol_sumET_W[scale   ][process][m] -> Fill( Scale , eventW );
+
+		h_resol_NVtx_W [parall_R][process][n] -> Fill( uPara , eventW );
+		h_resol_NVtx_W [transv_R][process][n] -> Fill( uPerp , eventW );
+		h_resol_NVtx_W [scale   ][process][n] -> Fill( Scale , eventW );
 
 
 	}

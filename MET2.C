@@ -11,25 +11,26 @@ void MET2(){
 
 	TFile* allhistos = new TFile( "histograms/" + allhistosReadFrom + ".root", "read" );
 
-	for( int i = 0; i < nvariable; i++ ){
+	for( int i = 0; i < nvariable_G; i++ ){
 
 		for( int j = 0; j < nprocess; j++ ){
+		//for( int j = alpha; j < omega+1; j++ ){
 
 			int TheKanal = kanal[j]; 
 
-			h_global[i][j] = (TH1F*) allhistos -> Get("h_global_" + variableID[i] + "_" + kanalID[TheKanal] + "_" + processID[j]);
+			h_global[i][j] = (TH1F*) allhistos -> Get("h_global_" + variableID_G[i] + "_" + kanalID[TheKanal] + "_" + processID[j]);
 
 		}
 
 	}
 
 
-
 	for( int j = 0; j < nprocess; j++ ){
+	//for( int j = alpha; j < omega+1; j++ ){
 
 		if( isData[j] ) continue; 
 
-		for( int i = 0; i < nvariable; i++ ){ 		
+		for( int i = 0; i < nvariable_G; i++ ){ 	
 
  			h_global[i][j] -> Scale( TheLuminosity ); 
 
@@ -39,7 +40,7 @@ void MET2(){
 
 	}
 
-	for( int i = 0; i < nvariable; i++ ){
+	for( int i = 0; i < nvariable_G; i++ ){
 
 			h_global[i][WW_ee]->Add(h_global[i][WZTo2L2Q_ee ]);
 			h_global[i][WW_ee]->Add(h_global[i][WZTo3LNu_ee ]);
@@ -93,15 +94,15 @@ void MET2(){
 
 void GlobalPlots( int ch ){  
 
-	for( int i = 0; i < nvariable; i++ ){
+	int runB, runC, runD; 
 
-		int runB, runC, runD; 
+	for( int i = 0; i < nvariable_G; i++ ){
 
 		if ( ch == Zee   ) { runB =DoubleEG2016B    ; runC =DoubleEG2016C    ; runD =DoubleEG2016D    ; }
 		if ( ch == Zmumu ) { runB =DoubleMuon2016B  ; runC =DoubleMuon2016C  ; runD =DoubleMuon2016D  ; }
 		if ( ch == Gamma ) { runB =SinglePhoton2016B; runC =SinglePhoton2016C; runD =SinglePhoton2016D; }
 
-		h_data[i] = (TH1F*) h_global[i][runB] -> Clone( "h_data_" + variableID[i] );
+		h_data[i] = (TH1F*) h_global[i][runB] -> Clone( "h_data_" + variableID_G[i] );
 
 		h_data[i] -> Add( h_global[i][runC] );
 		h_data[i] -> Add( h_global[i][runD] );
@@ -115,54 +116,56 @@ void GlobalPlots( int ch ){
 	}
 
 
-	for( int i = 0; i < nvariable; i++ ){
+	//-- h_mc 
+ 
+	for( int i = 0; i < nvariable_G; i++ ){
 
 		if( ch == Zee ){
 
-			h_mc[i] = (TH1F*) h_global[i][DY_ee] -> Clone( "h_mc_" + variableID[i] );
+			h_mc[i] = (TH1F*) h_global[i][DY_ee] -> Clone( "h_mc_" + variableID_G[i] );
 
-			for( int j = DY_ee; j < ZZTo2L2Nu_ee; j++ ){ 
-
-				h_mc[i] -> Add( h_global[i][j+1] );
+			h_mc[i] -> Add( h_global[i][TT_ee] );
+			h_mc[i] -> Add( h_global[i][WW_ee] );
 		
-			}
-
 		}
 
 		if( ch == Zmumu ){
 
-			h_mc[i] = (TH1F*) h_global[i][DY_mm] -> Clone( "h_mc_" + variableID[i] );
+			h_mc[i] = (TH1F*) h_global[i][DY_mm] -> Clone( "h_mc_" + variableID_G[i] );
 
-			for( int j = DY_mm; j < ZZTo2L2Nu_mm; j++ ){ 
-
-				h_mc[i] -> Add( h_global[i][j+1] );
-		
-			}
-
+			h_mc[i] -> Add( h_global[i][TT_mm] );
+			h_mc[i] -> Add( h_global[i][WW_mm] );
+	
 		}
-
 
 
 		if( ch == Gamma ){
 
-			h_mc[i] = (TH1F*) h_global[i][GJets40100] -> Clone( "h_mc_" + variableID[i] );
+			h_mc[i] = (TH1F*) h_global[i][GJets40100] -> Clone( "h_mc_" + variableID_G[i] );
 
-			for( int j = GJets40100; j < TGJets; j++ ){ 
-
-				h_mc[i] -> Add( h_global[i][j+1] );
-		
-			}
+			h_mc[i] -> Add( h_global[i][QCD200300  ] );
+			h_mc[i] -> Add( h_global[i][WJets100200] );
+			h_mc[i] -> Add( h_global[i][WGJets     ] );
+			h_mc[i] -> Add( h_global[i][ZGJets     ] );
+			h_mc[i] -> Add( h_global[i][TTGJets    ] );			
 
 		}
 
-	}
+	}	
 
 
 
+	//-- PU-reweighting
 
-	for( int i = 0; i < nvariable; i++ ){
+	//GetPUreweighting( ch );
 
-		s_global[i]  = new THStack( variableID[i], variableID[i] );
+
+
+	//-- stack
+ 
+	for( int i = 0; i < nvariable_G; i++ ){
+
+		s_global[i]  = new THStack( variableID_G[i], variableID_G[i] );
 
 		if(  ch == Zee ){
 
@@ -186,7 +189,7 @@ void GlobalPlots( int ch ){
 			s_global[i] -> Add( h_global[i][ZGJets         ] );
 			s_global[i] -> Add( h_global[i][WJets100200    ] );
 			s_global[i] -> Add( h_global[i][WGJets         ] );
-			s_global[i] -> Add( h_global[i][QCD300500      ] );
+			s_global[i] -> Add( h_global[i][QCD200300      ] );
 			s_global[i] -> Add( h_global[i][GJets40100     ] );
 
 		}
@@ -194,83 +197,29 @@ void GlobalPlots( int ch ){
 	}
 
 
+	//-- ratio
 
-	for( int i = 0; i < nvariable; i++ ){
+	for( int i = 0; i < nvariable_G; i++ ){
 
-		Ratio[i] = (TH1F*) h_data[i] -> Clone( "ratio_" + variableID[i] );
-		Unc  [i] = (TH1F*) h_mc  [i] -> Clone( "ratio_" + variableID[i] ); 
+		Ratio[i] = (TH1F*) h_data[i] -> Clone( "ratio_" + variableID_G[i] );
+		Unc  [i] = (TH1F*) h_mc  [i] -> Clone( "ratio_" + variableID_G[i] ); 
 
 		Unc[i]->SetLineColor(11);
 		Unc[i]->SetFillColor(11);
 
 	}
 
+	BuildRatio( parall_G, nbinuPara ); 
+	BuildRatio( transv_G, nbinuPerp ); 
+	BuildRatio( MET     , nbinMET   ); 
+	BuildRatio( VpT     , nbinpT    ); 
+	BuildRatio( nvert   , nbinnvert ); 
 
-	for( int r = 0; r < nbinuPara; r++ ){
-
-		float dataSum = h_data[parall] -> GetBinContent(r+1);
-		float dataErr = h_data[parall] -> GetBinError(r+1)  ;
-		float mcSum   = h_mc  [parall] -> GetBinContent(r+1);
-		float mcErr   = h_mc  [parall] -> GetBinError(r+1)  ;
-
-		float TheRatio =          dataSum / mcSum;
-		float TheError =          dataErr / mcSum;
-		float TheUncErr= TheRatio * mcErr / mcSum;  
-
-		Ratio[parall] -> SetBinContent(r+1, TheRatio);
-		Ratio[parall] -> SetBinError  (r+1, TheError);
-
-		Unc[parall] -> SetBinContent(r+1, 1.0);
-		Unc[parall] -> SetBinError  (r+1, TheUncErr);
-
-
-	}
-
-
-	for( int r = 0; r < nbinuPerp; r++ ){
-
-		float dataSum = h_data[transv] -> GetBinContent(r+1);
-		float dataErr = h_data[transv] -> GetBinError(r+1)  ;
-		float mcSum   = h_mc  [transv] -> GetBinContent(r+1);
-		float mcErr   = h_mc  [transv] -> GetBinError(r+1)  ;
-
-		float TheRatio =          dataSum / mcSum;
-		float TheError =          dataErr / mcSum;
-		float TheUncErr= TheRatio * mcErr / mcSum;  
-
-		Ratio[transv] -> SetBinContent(r+1, TheRatio);
-		Ratio[transv] -> SetBinError  (r+1, TheError);
-
-		Unc[transv] -> SetBinContent(r+1, 1.0);
-		Unc[transv] -> SetBinError  (r+1, TheUncErr);
-
-
-	}
 	
-	for( int r = 0; r < nbinMET; r++ ){
 
-		float dataSum = h_data[MET] -> GetBinContent(r+1);
-		float dataErr = h_data[MET] -> GetBinError(r+1)  ;
-		float mcSum   = h_mc  [MET] -> GetBinContent(r+1);
-		float mcErr   = h_mc  [MET] -> GetBinError(r+1)  ;
+	for( int i = 0; i < nvariable_G; i++ ){
 
-		float TheRatio =          dataSum / mcSum;
-		float TheError =          dataErr / mcSum;
-		float TheUncErr= TheRatio * mcErr / mcSum;  
-
-		Ratio[MET] -> SetBinContent(r+1, TheRatio);
-		Ratio[MET] -> SetBinError  (r+1, TheError);
-
-		Unc[MET] -> SetBinContent(r+1, 1.0);
-		Unc[MET] -> SetBinError  (r+1, TheUncErr);
-
-	}
-
-
-
-	for( int i = 0; i < nvariable; i++ ){
-
-		TCanvas* c = new TCanvas( "canvas_" + variableID[i], variableID[i], 550, 720 );  
+		TCanvas* c = new TCanvas( "canvas_" + variableID_G[i], variableID_G[i], 550, 720 );  
 
 		TPad* pad1 = new TPad("pad1", "pad1", 0.05, 0.0, 1.00, 0.3);
 		TPad* pad2 = new TPad("pad2", "pad2", 0.05, 0.3, 1.00, 1.0);
@@ -356,16 +305,16 @@ void GlobalPlots( int ch ){
 
 		pad1 -> cd();
 
-		pad1 -> SetLogy();		
+		//pad1 -> SetLogy();		
 
 		Ratio[i] -> SetTitle("");
 
 		Ratio[i] -> SetStats(false);   // it has priority over the gStyle->SetOptStats option
 
- 		SetAxis( Ratio[i], variableIDfancy[i], "data / MC ", 1.4, 0.75 );
+ 		SetAxis( Ratio[i], variableIDfancy_G[i], "data / MC ", 1.4, 0.75 );
 
       		//Ratio[i] -> GetYaxis() -> SetRangeUser(1e-1, 1e1);
-      		Ratio[i] -> GetYaxis() -> SetRangeUser(0.5, 2.0);
+      		Ratio[i] -> GetYaxis() -> SetRangeUser(0., 2.);
 
 		Ratio[i] -> Draw("ep");
 		Unc[i]   -> Draw("e2, same");
@@ -375,8 +324,8 @@ void GlobalPlots( int ch ){
 
       		// ---------------------------------------------------------------
 
-		c -> SaveAs( "global/" + kanalID[ch] + "_" + variableID[i] + ".pdf" );
-		c -> SaveAs( "global/" + kanalID[ch] + "_" + variableID[i] + ".png" );
+		c -> SaveAs( "global/" + kanalID[ch] + "_" + variableID_G[i] + ".pdf" );
+		c -> SaveAs( "global/" + kanalID[ch] + "_" + variableID_G[i] + ".png" );
 
 	}
  
