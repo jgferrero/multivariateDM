@@ -28,8 +28,12 @@
 
 using namespace RooFit;
 
-enum{ Zee, Zmumu, Gamma, nkanal }; 
-enum{ parall, transv, MET, nvariable };
+
+enum{ Zee, Zmumu, Gamma, nkanal };
+ 
+enum{ parall_G, transv_G, MET, VpT, nvert, nvariable_G };
+enum{ parall_R, transv_R, scale,           nvariable_R }; 
+
 enum{ pT, sumET, NVtx, nparameter};
 
 
@@ -50,30 +54,32 @@ enum{ DoubleEG2016B  , DoubleEG2016C  , DoubleEG2016D  ,
       nprocess };   // APPROVAL
 
 
-
-TString allhistosWriteTo  = "11Aug_ALL"; 
-TString allhistosReadFrom = "11Aug_ALL"; 
+TString allhistosWriteTo  = "20Aug"      ; 
+TString allhistosReadFrom = "19Aug_lep-pT-25-20";   // "17Aug_new-xs_pu-rw" 
 
 const float TheLuminosity = 12.895;   //  5.9202 + 2.6453 + 4.3296 fb⁻¹  
 
-const bool DoFillHistograms = false;  
-const bool DoGlobalPlots    = false; 
-const bool DoFit            = true ; 
+const bool DoFillHistograms = 0;  
+const bool DoGlobalPlots    = 1; 
+const bool DoFit            = 1; 
 
-const bool SkipEventLoop    = false; 
+const bool SkipEventLoop    = 0; 
 
-const bool RunOverAllData = true; 
-const bool RunOverAllMC   = true; 
+const bool RunOverAllData = 1; 
+const bool RunOverAllMC   = 1; 
 
       int _TotalEntries[nprocess]; 
 
-const int MaxEntriesData    = 100;
-const int MaxEntriesMC      = 10000;
+const int MaxEntriesData    = 10;
+const int MaxEntriesMC      = 10;
 
-//const int MaxEntriesMCStored =  20000; // 20000 (11vii)
+const int alpha = DoubleEG2016B ;   // DoubleEG2016B;
+const int omega = ZZTo2L2Nu_ee  ;   // ZZTo2L2Nu_ee ;
 
-TString NTuplaDir[nkanal]; 
-TString kanalID  [nkanal]; 
+
+TString NTuplaDir   [nkanal]; 
+TString kanalID     [nkanal]; 
+TString kanalIDfancy[nkanal]; 
 
 
 const bool GJetsMC = false;
@@ -95,65 +101,56 @@ bool    isData        [nprocess];
 int     kanal         [nprocess];
  
 
-TString xx             [nvariable];
-TString variableID     [nvariable];
-TString variableIDfancy[nvariable];
-TString sigma_variable [nvariable];
+TString variableID_G     [nvariable_G];
+TString variableIDfancy_G[nvariable_G];
+
+TString variableID_R     [nvariable_R];
+TString variableIDfancy_R[nvariable_R];
+TString sigma_variable   [nvariable_R];
 
 TString parameterID     [nparameter];
 TString parameterIDfancy[nparameter];
 
-float maxpT    = 300.; float minpT    =50.; const int nbinpT    = 25; float _uppT   ;
+float maxpT    = 300.; float minpT    = 0.; const int nbinpT    = 30; float _uppT   ;
 float maxsumET =3000.; float minsumET = 0.; const int nbinsumET = 30; float _upsumET;  
 float maxNVtx  =  40.; float minNVtx  = 0.; const int nbinNVtx  =  8; float _upNVtx ;
 
-float maxMET   = 200.; float minMET   =    0.; const int nbinMET   = 40;
 float maxuPara = 200.; float minuPara = -200.; const int nbinuPara = 80; 
 float maxuPerp = 200.; float minuPerp = -200.; const int nbinuPerp = 80; 
+float maxscale =   2.; float minscale =    0.; const int nbinscale =100; 
+float maxMET   = 200.; float minMET   =    0.; const int nbinMET   = 40;
+float maxnvert =  40.; float minnvert =    0.; const int nbinnvert = 40; 
 
 /*float maxpT    = 200.; float minpT    = 0.; const int nbinpT    =  5; float _uppT   ;
 float maxsumET = 300.; float minsumET = 0.; const int nbinsumET =  5; float _upsumET;  
 float maxNVtx  =  20.; float minNVtx  = 0.; const int nbinNVtx  =  5; float _upNVtx ;*/
 
-const int aa = nvariable;   // just for next blocks
-const int bb = nprocess ;   // just for next blocks
+const int aa = nvariable_G;   // just for next blocks
+const int bb = nvariable_R;   // just for next blocks
+const int zz = nprocess   ;   // just for next blocks
 
 // ----- write -----------------------------
-TH1F*    h_global_W     [aa][bb]           ;
-TH1F*    h_resol_pT_W   [aa][bb][nbinpT   ];
-TH1F*    h_resol_sumET_W[aa][bb][nbinsumET];
-TH1F*    h_resol_NVtx_W [aa][bb][nbinNVtx ]; 
+TH1F*    h_global_W     [aa][zz]           ;
+TH1F*    h_resol_pT_W   [bb][zz][nbinpT   ];
+TH1F*    h_resol_sumET_W[bb][zz][nbinsumET];
+TH1F*    h_resol_NVtx_W [bb][zz][nbinNVtx ]; 
 // ----- read ------------------------------
-TH1F*    h_global     [aa][bb]           ;
+TH1F*    h_global     [aa][zz]           ;
 TH1F*    h_data       [aa]               ;
 TH1F*    h_mc         [aa]               ;
 THStack* s_global     [aa]               ;
 TH1F*    Ratio        [aa]               ;
 TH1F*    Unc          [aa]               ;
-TH1F*    h_resol_pT   [aa][bb][nbinpT   ];
-TH1F*    h_resol_pT_fit   [aa][3 ][nbinpT   ][nkanal];
-TH1F*    h_resol_sumET[aa][bb][nbinsumET];
-TH1F*    h_resol_sumET_fit[aa][3 ][nbinsumET][nkanal];
-TH1F*    h_resol_NVtx [aa][bb][nbinNVtx ]; 
-TH1F*    h_resol_NVtx_fit [aa][3 ][nbinNVtx ][nkanal]; 
+TH1F*    h_resol_pT   [bb][zz][nbinpT   ];
+TH1F*    h_resol_pT_fit   [bb][3 ][nbinpT   ][nkanal];
+TH1F*    h_resol_sumET[bb][zz][nbinsumET];
+TH1F*    h_resol_sumET_fit[bb][3 ][nbinsumET][nkanal];
+TH1F*    h_resol_NVtx [bb][zz][nbinNVtx ]; 
+TH1F*    h_resol_NVtx_fit [bb][3 ][nbinNVtx ][nkanal];
+TH1F*    h_SR[3][nparameter][nkanal];   // 3 histos x 3 param x 3 kanales
+TString  histoID[3]; 
 // -----------------------------------------
-
-
-float xpT   [nbinpT   ]; float ypT_A_Zee   [nbinpT   ]; float epT_A_Zee   [nbinpT   ]; float chi2pT_A_Zee   [nbinpT   ]; 
-			 float ypT_A_Zmm   [nbinpT   ]; float epT_A_Zmm   [nbinpT   ]; float chi2pT_A_Zmm   [nbinpT   ]; 
-			 float ypT_A_lum   [nbinpT   ]; float epT_A_lum   [nbinpT   ]; float chi2pT_A_lum   [nbinpT   ]; 
-			 float ypT_B       [nbinpT   ]; float epT_B       [nbinpT   ]; float chi2pT_B       [nbinpT   ];
-
-float xsumET[nbinsumET]; float ysumET_A_Zee[nbinsumET]; float esumET_A_Zee[nbinsumET]; float chi2sumET_A_Zee[nbinsumET];
-			 float ysumET_A_Zmm[nbinsumET]; float esumET_A_Zmm[nbinsumET]; float chi2sumET_A_Zmm[nbinsumET];
-			 float ysumET_A_lum[nbinsumET]; float esumET_A_lum[nbinsumET]; float chi2sumET_A_lum[nbinsumET];
-			 float ysumET_B    [nbinsumET]; float esumET_B    [nbinsumET]; float chi2sumET_B    [nbinsumET];
-
-float xNVtx [nbinNVtx ]; float yNVtx_A_Zee [nbinNVtx ]; float eNVtx_A_Zee [nbinNVtx ]; float chi2NVtx_A_Zee [nbinNVtx ];
-			 float yNVtx_A_Zmm [nbinNVtx ]; float eNVtx_A_Zmm [nbinNVtx ]; float chi2NVtx_A_Zmm [nbinNVtx ];
-			 float yNVtx_A_lum [nbinNVtx ]; float eNVtx_A_lum [nbinNVtx ]; float chi2NVtx_A_lum [nbinNVtx ];
-			 float yNVtx_B     [nbinNVtx ]; float eNVtx_B     [nbinNVtx ]; float chi2NVtx_B     [nbinNVtx ];
-
+		 
 
 
 void Assign          (                                                                                                          ); 
@@ -162,12 +159,14 @@ void GlobalPlots     ( int ch                                                   
 void OrderFits       (                                                                                                          );
 void  FillHistogram  ( int process                                                                                              );
 void GetResolution   ( int ch, int whichvar, int parameter, int ibin, float& resol, float& eresol, float& chichi, TString GJetsOrigin );
-void PlotResolution  ( int ivar, int parameter                                                                                  );
+void PlotResolution  ( int ivar, int param                                                                                      );
 void SetAxis         ( TH1* hist, TString xtitle, TString ytitle, Float_t xoffset, Float_t yoffset                              ); 
 void DrawLatex       ( Font_t tfont, Float_t x, Float_t y, Float_t tsize, Short_t align, const char* text                       );
 double GetFWHM       ( double sigma, double gamma                                                                               );
 double GetFWHMerror  ( double sigma, double gamma, double esigma, double egamma, double Vss, double Vsg, double Vgs, double Vgg );
-
+void BuildRatio      ( int ivar, int nbin                                                                                       );
+void GetPUreweighting( int ch                                                                                                   );
+void GetRatioValues  ( float x, float ex, float y, float ey, float& z, float& ez_data, float& ez_mc                             );
 
 
 
@@ -181,6 +180,9 @@ void Assign(){
 	kanalID[Zmumu] = "Zmm"  ;
 	kanalID[Gamma] = "Gamma";
 
+	kanalIDfancy[Zee  ] = "Z #rightarrow ee"    ;
+	kanalIDfancy[Zmumu] = "Z #rightarrow #mu#mu";
+	kanalIDfancy[Gamma] = "#gamma + jets"       ;
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -191,14 +193,14 @@ isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "data";  sampleID[i] = "DoubleE
 isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016C_PromptReco_v2"  ; processID[i++] = "DoubleEG2016C";
 isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016D_PromptReco_v2"  ; processID[i++] = "DoubleEG2016D";
 
-isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "DY"      ; ProcessColor[i] = kYellow; sampleID[i] = "DYJetsToLL_M50" ; processID[i] = "DYJetsToLL_M50" ; xs[i++] = 6024000.0;     
-isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "tt"      ; ProcessColor[i] = kRed   ; sampleID[i] = "TTJets_DiLepton"; processID[i] = "TTJets_DiLepton"; xs[i++] =   87310.0;         
-isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "dibosons"; ProcessColor[i] = kBlue  ; sampleID[i] = "WWTo2L2Nu"      ; processID[i] = "WWTo2L2Nu"      ; xs[i++] =   12178.0;        
-isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "WZTo2L2Q"       ; processID[i] = "WZTo2L2Q"       ; xs[i++] =    5595.0;           
-isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "WZTo3LNu"       ; processID[i] = "WZTo3LNu"       ; xs[i++] =    4429.0;         
-isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo4L"         ; processID[i] = "ZZTo4L"         ; xs[i++] =    1256.0;          
-isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo2L2Q"       ; processID[i] = "ZZTo2L2Q"       ; xs[i++] =    3280.0;          
-isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo2L2Nu"      ; processID[i] = "ZZTo2L2Nu"      ; xs[i++] =     564.0; 
+isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "DY"      ; ProcessColor[i] = kYellow; sampleID[i] = "DYJetsToLL_M50" ; processID[i] = "DYJetsToLL_M50" ; xs[i++] = 6025200.       ;     
+isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "tt"      ; ProcessColor[i] = kRed   ; sampleID[i] = "TTJets_DiLepton"; processID[i] = "TTJets_DiLepton"; xs[i++] =   88287.7      ;         
+isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "dibosons"; ProcessColor[i] = kBlue  ; sampleID[i] = "WWTo2L2Nu"      ; processID[i] = "WWTo2L2Nu"      ; xs[i++] =   12177.6      ;        
+isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "WZTo2L2Q"       ; processID[i] = "WZTo2L2Q"       ; xs[i++] =    5595.0*1.109;           
+isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "WZTo3LNu"       ; processID[i] = "WZTo3LNu"       ; xs[i++] =    4429.0*1.109;         
+isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo4L"         ; processID[i] = "ZZTo4L"         ; xs[i++] =    1256.       ;          
+isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo2L2Q"       ; processID[i] = "ZZTo2L2Q"       ; xs[i++] =    3220.0*1.1  ;          
+isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo2L2Nu"      ; processID[i] = "ZZTo2L2Nu"      ; xs[i++] =     564.       ; 
 
 
 
@@ -206,14 +208,14 @@ isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "data";  sampleID[i] = "DoubleM
 isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016C_PromptReco_v2"; processID[i++] = "DoubleMuon2016C";
 isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016D_PromptReco_v2"; processID[i++] = "DoubleMuon2016D";
 
-isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "DY"      ; ProcessColor[i] = kYellow; sampleID[i] = "DYJetsToLL_M50" ; processID[i] = "DYJetsToLL_M50" ; xs[i++] = 6024000.0;     
-isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "tt"      ; ProcessColor[i] = kRed   ; sampleID[i] = "TTJets_DiLepton"; processID[i] = "TTJets_DiLepton"; xs[i++] =   87310.0;         
-isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "dibosons"; ProcessColor[i] = kBlue  ; sampleID[i] = "WWTo2L2Nu"      ; processID[i] = "WWTo2L2Nu"      ; xs[i++] =   12178.0;        
-isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "WZTo2L2Q"       ; processID[i] = "WZTo2L2Q"       ; xs[i++] =    5595.0;           
-isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "WZTo3LNu"       ; processID[i] = "WZTo3LNu"       ; xs[i++] =    4429.0;         
-isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo4L"         ; processID[i] = "ZZTo4L"         ; xs[i++] =    1256.0;          
-isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo2L2Q"       ; processID[i] = "ZZTo2L2Q"       ; xs[i++] =    3280.0;          
-isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo2L2Nu"      ; processID[i] = "ZZTo2L2Nu"      ; xs[i++] =     564.0; 
+isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "DY"      ; ProcessColor[i] = kYellow; sampleID[i] = "DYJetsToLL_M50" ; processID[i] = "DYJetsToLL_M50" ; xs[i++] = 6025200.       ;     
+isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "tt"      ; ProcessColor[i] = kRed   ; sampleID[i] = "TTJets_DiLepton"; processID[i] = "TTJets_DiLepton"; xs[i++] =   88287.7      ;         
+isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "dibosons"; ProcessColor[i] = kBlue  ; sampleID[i] = "WWTo2L2Nu"      ; processID[i] = "WWTo2L2Nu"      ; xs[i++] =   12177.6      ;        
+isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "WZTo2L2Q"       ; processID[i] = "WZTo2L2Q"       ; xs[i++] =    5595.0*1.109;           
+isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "WZTo3LNu"       ; processID[i] = "WZTo3LNu"       ; xs[i++] =    4429.0*1.109;         
+isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo4L"         ; processID[i] = "ZZTo4L"         ; xs[i++] =    1256.       ;          
+isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo2L2Q"       ; processID[i] = "ZZTo2L2Q"       ; xs[i++] =    3220.0*1.1  ;          
+isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "ZZTo2L2Nu"      ; processID[i] = "ZZTo2L2Nu"      ; xs[i++] =     564.       ; 
 
 
 
@@ -243,39 +245,58 @@ isData[i] = 0; kanal[i] = 2; sampleID[i] = "WJetsToLNu_HT800to1200" ; xs[i] =   
 isData[i] = 0; kanal[i] = 2; sampleID[i] = "WJetsToLNu_HT1200to2500"; xs[i] =       1608.1; processID[i] = "WJets12002500"  ; processIDfancy[i] = " "              ; ProcessColor[i++] = kBlue  ;
 isData[i] = 0; kanal[i] = 2; sampleID[i] = "WJetsToLNu_HT2500toInf" ; xs[i] =         38.9; processID[i] = "WJets2500Inf"   ; processIDfancy[i] = " "              ; ProcessColor[i++] = kBlue  ;
 
-isData[i] = 0; kanal[i] = 2; sampleID[i] = "ZGJets"                 ; xs[i] =        190.3; processID[i] = "ZGJets"         ; processIDfancy[i] = "Z#gamma + jets" ; ProcessColor[i++] = kViolet;
-isData[i] = 0; kanal[i] = 2; sampleID[i] = "ZNuNuGJets40130"        ; xs[i] =       2816.0; processID[i] = "ZNuNuGJets40130"; processIDfancy[i] = " "              ; ProcessColor[i++] = kViolet;
-isData[i] = 0; kanal[i] = 2; sampleID[i] = "ZGTo2LG"                ; xs[i] =     117864.0; processID[i] = "ZGTo2LG"        ; processIDfancy[i] = " "              ; ProcessColor[i++] = kViolet;
+isData[i] = 0; kanal[i] = 2; sampleID[i] = "ZGJets"                 ; xs[i] =    190.3*1.4; processID[i] = "ZGJets"         ; processIDfancy[i] = "Z#gamma + jets" ; ProcessColor[i++] = kViolet;
+isData[i] = 0; kanal[i] = 2; sampleID[i] = "ZNuNuGJets40130"        ; xs[i] =   2806.0*1.4; processID[i] = "ZNuNuGJets40130"; processIDfancy[i] = " "              ; ProcessColor[i++] = kViolet;
+isData[i] = 0; kanal[i] = 2; sampleID[i] = "ZGTo2LG"                ; xs[i] = 123900. *1.06;processID[i] = "ZGTo2LG"        ; processIDfancy[i] = " "              ; ProcessColor[i++] = kViolet;
 
-isData[i] = 0; kanal[i] = 2; sampleID[i] = "WGJets"                 ; xs[i] =        663.7; processID[i] = "WGJets"         ; processIDfancy[i] = "W#gamma + jets" ; ProcessColor[i++] = kCyan  ;
-isData[i] = 0; kanal[i] = 2; sampleID[i] = "WGToLNuG"               ; xs[i] =     585800.0; processID[i] = "WGToLNuG"       ; processIDfancy[i] = " "              ; ProcessColor[i++] = kCyan  ;
+isData[i] = 0; kanal[i] = 2; sampleID[i] = "WGJets"                 ; xs[i] =    663.7*1.4; processID[i] = "WGJets"         ; processIDfancy[i] = "W#gamma + jets" ; ProcessColor[i++] = kCyan  ;
+isData[i] = 0; kanal[i] = 2; sampleID[i] = "WGToLNuG"               ; xs[i] = 514000. *1.14;processID[i] = "WGToLNuG"       ; processIDfancy[i] = " "              ; ProcessColor[i++] = kCyan  ;
 
-isData[i] = 0; kanal[i] = 2; sampleID[i] = "TTGJets"                ; xs[i] =       3697.0; processID[i] = "TTGJets"        ; processIDfancy[i] = "tt#gamma + jets"; ProcessColor[i++] = kPink  ; 
-isData[i] = 0; kanal[i] = 2; sampleID[i] = "TGJets"                 ; xs[i] =       3697.0; processID[i] = "TGJets"         ; processIDfancy[i] = "               "; ProcessColor[i  ] = kPink  ;
+isData[i] = 0; kanal[i] = 2; sampleID[i] = "TTGJets"                ; xs[i] =   1444. *3.2; processID[i] = "TTGJets"        ; processIDfancy[i] = "tt#gamma + jets"; ProcessColor[i++] = kPink  ; 
+isData[i] = 0; kanal[i] = 2; sampleID[i] = "TGJets"                 ; xs[i] =   2967.     ; processID[i] = "TGJets"         ; processIDfancy[i] = "               "; ProcessColor[i  ] = kPink  ;
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	variableID[parall] = "parallel"  ; 
-	variableID[transv] = "transverse"; 
-	variableID[MET   ] = "MET"       ;
+	variableID_G[parall_G] = "parallel"  ; 
+	variableID_G[transv_G] = "transverse"; 
+	variableID_G[MET     ] = "MET"       ;
+	variableID_G[VpT     ] = "VpT"       ;
+	variableID_G[nvert   ] = "nvert"     ;
 
-	variableIDfancy[parall] = "u_{||}+V_{T} [GeV]"; 
-	variableIDfancy[transv] = "u_{#perp}  [GeV]"       ;
-	variableIDfancy[MET   ] = "E_{T}^{miss} [GeV]"     ;
+	variableIDfancy_G[parall_G] = "u_{||} + q_{T} [GeV]"   ; 
+	variableIDfancy_G[transv_G] = "u_{#perp}  [GeV]"       ;
+	variableIDfancy_G[MET     ] = "E_{T}^{miss} [GeV]"     ;
+	variableIDfancy_G[VpT     ] = "q_{T} [GeV]"            ;
+	variableIDfancy_G[nvert   ] = "Number of Vertices"     ;
 
-	sigma_variable[parall] = "#sigma( u_{||} ) [GeV]"   ;
-	sigma_variable[transv] = "#sigma( u_{#perp} )  [GeV]";
+
+	variableID_R[parall_R] = "parallel"  ; 
+	variableID_R[transv_R] = "transverse"; 
+	variableID_R[scale   ] = "scale"     ;
+
+	variableIDfancy_R[parall_R] = "u_{||} + q_{T} [GeV]"   ; 
+	variableIDfancy_R[transv_R] = "u_{#perp}  [GeV]"       ;
+	variableIDfancy_R[scale   ] = "abs(u_{||}) / q_{T}"       ;
+
+	sigma_variable[parall_R] = "#sigma( u_{||} ) [GeV]"    ;
+	sigma_variable[transv_R] = "#sigma( u_{#perp} )  [GeV]";
+	sigma_variable[scale   ] = "abs(u_{||}) / q_{T}"          ;
+
 
 
 	parameterID[pT   ] = "pT"   ;
 	parameterID[sumET] = "sumET";
 	parameterID[NVtx ] = "NVtx" ;
 
-	parameterIDfancy[pT   ] = "#gamma q_{T} [GeV]";
+	parameterIDfancy[pT   ] = "q_{T} [GeV]";
 	parameterIDfancy[sumET] = "#Sigma E_{T} [TeV]";
-	parameterIDfancy[NVtx ] = "number of vertices";
+	parameterIDfancy[NVtx ] = "Number of Vertices";
 
 
+
+	histoID[0] = "up"       ;
+	histoID[1] = "ratio"    ;
+	histoID[2] = "ratio_unc";
 
 }
 
@@ -329,5 +350,62 @@ void DrawLatex( Font_t tfont, Float_t x, Float_t y, Float_t tsize, Short_t align
 	tl -> Draw("same");
 
 }
+
+
+
+void BuildRatio( int ivar, int nbin ) {
+
+	for( int r = 0; r < nbin; r++ ){
+
+		float dataSum = h_data[ivar] -> GetBinContent(r+1);
+		float dataErr = h_data[ivar] -> GetBinError(r+1)  ;
+		float mcSum   = h_mc  [ivar] -> GetBinContent(r+1);
+		float mcErr   = h_mc  [ivar] -> GetBinError(r+1)  ;
+
+		float TheRatio 	= 999; 
+		float TheError  = 999;
+		float TheUncErr = 999; 
+
+		if( mcSum > 0. ) {
+
+			TheRatio =          dataSum / mcSum;
+			TheError =          dataErr / mcSum;
+			TheUncErr= TheRatio * mcErr / mcSum;  
+
+		}
+
+		Ratio[ivar] -> SetBinContent(r+1, TheRatio);  
+		Ratio[ivar] -> SetBinError  (r+1, TheError);
+
+		Unc[ivar] -> SetBinContent(r+1, 1.0);
+		Unc[ivar] -> SetBinError  (r+1, TheUncErr);
+
+	}	 
+
+}
+
+
+void GetPUreweighting( int ch ) {
+
+	TFile* myfile = new TFile("pileup/PU-reweighting.root", "update");
+
+	TH1F* h_pu = (TH1F*) h_data[nvert] -> Clone( "h_pu-reweighting_" + kanalID[ch] );
+
+	for( int i = 1; i < h_pu->GetNbinsX()+1; i++ ) {
+
+		float dt = h_data[nvert] -> GetBinContent(i);
+		float mc = h_mc  [nvert] -> GetBinContent(i);
+
+		float sf;  ( mc > 0. )  ?  sf = dt/mc  :  sf = 1.0; 	
+
+		h_pu -> SetBinContent( i, sf ); 
+
+	}
+
+	h_pu -> Write();
+
+	myfile->Close();
+	
+} 
 
 
