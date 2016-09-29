@@ -20,6 +20,14 @@ void MET3(){
 			for( int j = 0; j < nprocess; j++ ){
 			//for( int j = alpha; j < omega+1; j++ ){ 
 
+				if (  j == DoubleEG2016E     || j == DoubleEG2016F     ) continue; 
+				if (  j == DoubleMuon2016E   || j == DoubleMuon2016F   ) continue; 
+				if (  j == SinglePhoton2016E || j == SinglePhoton2016F ) continue;
+
+				/*if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
+				if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
+				if ( j == SinglePhoton2016B || j == SinglePhoton2016C || j == SinglePhoton2016D ) continue;*/
+ 
 				int TheKanal = kanal[j];
 
 				for( int k = 0; k < nbinpT   ; k++){
@@ -111,7 +119,9 @@ void MET3(){
 
 				h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016B][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016C][k][s] ); 
-				h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016D][k][s] ); 
+				h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016D][k][s] );
+				//h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016E][k][s] );
+ 				//h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016F][k][s] );
 				h_resol_pT_fit   [i][2][k][Zee][s] -> Add( h_resol_pT   [i][DY_ee        ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zee][s] -> Add( h_resol_pT   [i][TT_ee        ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zee][s] -> Add( h_resol_pT   [i][TTsemiT_ee   ][k][s] ); 
@@ -136,6 +146,8 @@ void MET3(){
 				h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016B][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016C][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016D][k][s] ); 
+				//h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016E][k][s] ); 
+				//h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016F][k][s] ); 
 				h_resol_pT_fit   [i][2][k][Zmumu][s] -> Add( h_resol_pT   [i][DY_mm          ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zmumu][s] -> Add( h_resol_pT   [i][TT_mm          ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zmumu][s] -> Add( h_resol_pT   [i][TTsemiT_mm     ][k][s] ); 
@@ -156,9 +168,12 @@ void MET3(){
 				h_resol_pT_fit   [i][1][k][Zmumu][s] -> Add( h_resol_pT   [i][SingleTop4_mm  ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zmumu][s] -> Add( h_resol_pT   [i][SingleTop5_mm  ][k][s] ); 
 
+
 				h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016B][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016C][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016D][k][s] ); 
+				//h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016E][k][s] ); 
+				//h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016F][k][s] ); 
 				h_resol_pT_fit   [i][2][k][Gamma][s] -> Add( h_resol_pT   [i][GJets40100 ][k][s] ); 
 				h_resol_pT_fit   [i][2][k][Gamma][s] -> Add( h_resol_pT   [i][GJets100200][k][s] ); 
 				h_resol_pT_fit   [i][2][k][Gamma][s] -> Add( h_resol_pT   [i][GJets200400][k][s] ); 
@@ -193,6 +208,8 @@ void MET3(){
 				h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016B][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016C][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016D][k][s] ); 
+				//h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016E][k][s] ); 
+				//h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016F][k][s] ); 
 				h_resol_sumET_fit   [i][2][k][Zee][s] -> Add( h_resol_sumET   [i][DY_ee        ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][TT_ee        ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][TTsemiT_ee   ][k][s] ); 
@@ -213,9 +230,12 @@ void MET3(){
 				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][SingleTop4_ee][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][SingleTop5_ee][k][s] );
 
+
 				h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016B][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016C][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016D][k][s] ); 
+				//h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016E][k][s] ); 
+				//h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016F][k][s] ); 
 				h_resol_sumET_fit   [i][2][k][Zmumu][s] -> Add( h_resol_sumET   [i][DY_mm          ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zmumu][s] -> Add( h_resol_sumET   [i][TT_mm          ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zmumu][s] -> Add( h_resol_sumET   [i][TTsemiT_mm     ][k][s] ); 
@@ -236,9 +256,12 @@ void MET3(){
 				h_resol_sumET_fit   [i][1][k][Zmumu][s] -> Add( h_resol_sumET   [i][SingleTop4_mm  ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zmumu][s] -> Add( h_resol_sumET   [i][SingleTop5_mm  ][k][s] ); 
 
+
 				h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016B][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016C][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016D][k][s] ); 
+				//h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016E][k][s] ); 
+				//h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016F][k][s] ); 
 				h_resol_sumET_fit   [i][2][k][Gamma][s] -> Add( h_resol_sumET   [i][GJets40100 ][k][s] ); 
 				h_resol_sumET_fit   [i][2][k][Gamma][s] -> Add( h_resol_sumET   [i][GJets100200][k][s] ); 
 				h_resol_sumET_fit   [i][2][k][Gamma][s] -> Add( h_resol_sumET   [i][GJets200400][k][s] ); 
@@ -273,6 +296,8 @@ void MET3(){
 				h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016B][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016C][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016D][k][s] ); 
+				//h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016E][k][s] ); 
+				//h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016F][k][s] ); 
 				h_resol_NVtx_fit   [i][2][k][Zee][s] -> Add( h_resol_NVtx   [i][DY_ee        ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][TT_ee        ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][TTsemiT_ee   ][k][s] ); 
@@ -293,9 +318,12 @@ void MET3(){
 				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][SingleTop4_ee][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][SingleTop5_ee][k][s] );
 
+
 				h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016B][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016C][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016D][k][s] ); 
+				//h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016E][k][s] ); 
+				//h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016F][k][s] ); 
 				h_resol_NVtx_fit   [i][2][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DY_mm          ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zmumu][s] -> Add( h_resol_NVtx   [i][TT_mm          ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zmumu][s] -> Add( h_resol_NVtx   [i][TTsemiT_mm     ][k][s] ); 
@@ -316,9 +344,12 @@ void MET3(){
 				h_resol_NVtx_fit   [i][1][k][Zmumu][s] -> Add( h_resol_NVtx   [i][SingleTop4_mm  ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zmumu][s] -> Add( h_resol_NVtx   [i][SingleTop5_mm  ][k][s] );
 
+
 				h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016B][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016C][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016D][k][s] ); 
+				//h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016E][k][s] ); 
+				//h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016F][k][s] ); 
 				h_resol_NVtx_fit   [i][2][k][Gamma][s] -> Add( h_resol_NVtx   [i][GJets40100 ][k][s] ); 
 				h_resol_NVtx_fit   [i][2][k][Gamma][s] -> Add( h_resol_NVtx   [i][GJets100200][k][s] ); 
 				h_resol_NVtx_fit   [i][2][k][Gamma][s] -> Add( h_resol_NVtx   [i][GJets200400][k][s] ); 

@@ -17,8 +17,16 @@ void MET2(){
 
 		for( int i = 0; i < nvariable_G; i++ ){
 
-			//for( int j = 0; j < nprocess; j++ ){
-			for( int j = alpha; j < omega+1; j++ ){
+			for( int j = 0; j < nprocess; j++ ){
+			//for( int j = alpha; j < omega+1; j++ ){
+
+				/*if (  j == DoubleEG2016E     || j == DoubleEG2016F     ) continue; 
+				if (  j == DoubleMuon2016E   || j == DoubleMuon2016F   ) continue; 
+				if (  j == SinglePhoton2016E || j == SinglePhoton2016F ) continue;*/
+
+				if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
+				if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
+				if ( j == SinglePhoton2016B || j == SinglePhoton2016C || j == SinglePhoton2016D ) continue; 
 
 				int TheKanal = kanal[j]; 
 
@@ -31,8 +39,12 @@ void MET2(){
 		}
 
 
-		//for( int j = 0; j < nprocess; j++ ){
-		for( int j = alpha; j < omega+1; j++ ){
+		for( int j = 0; j < nprocess; j++ ){
+		//for( int j = alpha; j < omega+1; j++ ){
+
+			if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
+			if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
+			if ( j == SinglePhoton2016B || j == SinglePhoton2016C || j == SinglePhoton2016D ) continue;
 
 			if( isData[j] ) continue; 
 
@@ -69,7 +81,7 @@ void MET2(){
 				h_global[i][WW_ee][s]->Add(h_global[i][SingleTop5_ee][s]);
 
 
-				/*h_global[i][TT_mm][s]->Add(h_global[i][TTsemiT_mm   ][s]);
+				h_global[i][TT_mm][s]->Add(h_global[i][TTsemiT_mm   ][s]);
 				h_global[i][TT_mm][s]->Add(h_global[i][TTsemiTbar_mm][s]);
 
 				h_global[i][WW_mm][s]->Add(h_global[i][WZTo2L2Q_mm  ][s]);
@@ -113,15 +125,15 @@ void MET2(){
 
 				h_global[i][WGJets ][s]->Add( h_global[i][WGToLNuG       ][s] );
 
-				h_global[i][TTGJets][s]->Add( h_global[i][TGJets         ][s] );*/
+				h_global[i][TTGJets][s]->Add( h_global[i][TGJets         ][s] );
 
 		}
 
 	}   // systematic
 
 	GlobalPlots( Zee   ); 
-	//GlobalPlots( Zmumu ); 
-	//GlobalPlots( Gamma ); 
+	GlobalPlots( Zmumu ); 
+	GlobalPlots( Gamma ); 
 
 }
 
@@ -140,11 +152,13 @@ void GlobalPlots( int ch ){
 
 		for( int i = 0; i < nvariable_G; i++ ){
 
-			h_data[i][s] = (TH1F*) h_global[i][runB][s] -> Clone( "h_data_" + variableID_G[i] + "_" + systematicID[s] );
+			//h_data[i][s] = (TH1F*) h_global[i][runB][s] -> Clone( "h_data_" + variableID_G[i] + "_" + systematicID[s] );
 
-			h_data[i][s] -> Add( h_global[i][runC][s] );
-			h_data[i][s] -> Add( h_global[i][runD][s] );
-			h_data[i][s] -> Add( h_global[i][runE][s] );
+			//h_data[i][s] -> Add( h_global[i][runC][s] );
+			//h_data[i][s] -> Add( h_global[i][runD][s] );
+
+			h_data[i][s] = (TH1F*) h_global[i][runE][s] -> Clone( "h_data_" + variableID_G[i] + "_" + systematicID[s] );
+			//h_data[i][s] -> Add( h_global[i][runE][s] );
 			h_data[i][s] -> Add( h_global[i][runF][s] );
 
 			h_data[i][s] -> SetMarkerStyle(20);
@@ -198,7 +212,7 @@ void GlobalPlots( int ch ){
 
 	//-- PU-reweighting
 
-	//GetPUreweighting( ch );
+	GetPUreweighting( ch );
 
 
 
@@ -245,8 +259,9 @@ void GlobalPlots( int ch ){
 		Ratio[i] = (TH1F*) h_data[i][nominal] -> Clone( "ratio_" + variableID_G[i] );
 		Unc  [i] = (TH1F*) h_mc  [i][nominal] -> Clone( "ratio_" + variableID_G[i] ); 
 
-		Unc[i]->SetLineColor(11);
+		Unc[i]->SetLineColor(kRed);
 		Unc[i]->SetFillColor(11);
+
 
 	}
 
@@ -358,6 +373,7 @@ void GlobalPlots( int ch ){
 
 		Ratio[i] -> Draw("ep");
 		Unc[i]   -> Draw("e2, same");
+		//Unc[i]   -> Draw("hist, c, same");
 		Ratio[i] -> Draw("ep, same");
 
 		pad1 -> RedrawAxis();

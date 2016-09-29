@@ -18,6 +18,11 @@ void FillHistograms(){
 	//for( int j = 0; j < nprocess; j++ ){
 	for( int j = alpha; j < omega+1; j++ ){
 
+		//if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
+		//if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
+		//if ( j == SinglePhoton2016B || j == SinglePhoton2016C || j == SinglePhoton2016D ) continue; 
+		//if ( j != DoubleEG2016E && j != DoubleEG2016F && j != DoubleMuon2016E && j != DoubleMuon2016F && j != SinglePhoton2016E && j != SinglePhoton2016F ) continue; 
+
 		cout << "next n-tupla: " << processID[j] << endl; 
 
 		FillHistogram( j );
@@ -66,10 +71,11 @@ void FillHistogram( int process ){
 
 	ofstream sync;   // for the sync with Leonora
 
-	sync.open( "sync/" + processID[process] + ".txt" );
+	sync.open( "sync/160926_" + processID[process] + "_weights.txt" );
 
-	sync << "RUN       \t LUMI     \t EVT   \t Zll pT  \t lep1 pT \t lep2 pT  \t MET       \n \n"; 
+	//sync << "RUN       \t LUMI     \t EVT   \t Zll pT  \t lep-1 pT \t lep-2 pT \t MET       \n \n \n"; 
 
+	sync << "baseW \t puW \t genW \t eventW (total)       \n \n \n"; 
 
 	int TheKanal = kanal[process]; 
 
@@ -81,7 +87,7 @@ void FillHistogram( int process ){
 	TH1F* kfactor_ZllG  = (TH1F*) kfactorFile -> Get( "zllg-130" );  
 
 
-	TFile* f_pu = new TFile( "pileup/PU-reweighting_160914_Zee-no-pu.root", "read");
+	TFile* f_pu = new TFile( "pileup/PU-reweighting_160926_definitivo_runs-E-F.root", "read");
 
 	TH1F* h_pu[nkanal];
 
@@ -92,7 +98,9 @@ void FillHistogram( int process ){
 
 	TFile* TheFile = new TFile( NTuplaDir[TheKanal] + sampleID[process] + "/METtree.root", "read"); 
 
-	TH1F* TheCount = (TH1F*) TheFile -> Get( "Count" );  float TheDenominator = TheCount -> GetEntries(); // cout << "total nentries from the histo = " << TheDenominator << endl;
+	TH1F* TheSumGenWeight; float TheDenominator; 
+
+	if( !isData[process] ) { TH1F* TheSumGenWeight = (TH1F*) TheFile -> Get( "SumGenWeights" ); TheDenominator = TheSumGenWeight -> Integral(); }  // cout << "total nentries from the histo = " << TheDenominator << endl;
 
 	TTree* tree = (TTree*) TheFile -> Get( "METtree" );
 
@@ -119,6 +127,7 @@ void FillHistogram( int process ){
 
 	int   nLepGood10                        ;  
 	float lep_pt[4]                         ;  
+	float lep_eta[4]                        ;  
 
 	int   HBHENoiseFilter                   ;
 	int   HBHENoiseIsoFilter                ;
@@ -203,6 +212,7 @@ void FillHistogram( int process ){
 	}
 
 	tree -> SetBranchStatus("lep_pt"                                 , 1);		tree -> SetBranchAddress( "lep_pt"                                 , &lep_pt                             );
+	tree -> SetBranchStatus("lep_eta"                                , 1);		tree -> SetBranchAddress( "lep_eta"                                , &lep_eta                            );
 
 	tree -> SetBranchStatus("Flag_HBHENoiseFilter"                   , 1);		tree -> SetBranchAddress( "Flag_HBHENoiseFilter"                   , &HBHENoiseFilter                    );
 	tree -> SetBranchStatus("Flag_HBHENoiseIsoFilter"                , 1);		tree -> SetBranchAddress( "Flag_HBHENoiseIsoFilter"                , &HBHENoiseIsoFilter                 );
@@ -343,13 +353,19 @@ void FillHistogram( int process ){
 
 		if ( TheKanal == Zee || TheKanal == Zmumu ){
 
-			if ( nLepGood20 < 2                      ) continue; 
+			if ( nLepGood20 != 2                     ) continue;
+
+			if (  abs(lep_eta[0]) > 2.4             ||  abs(lep_eta[1]) > 2.4             ) continue; 	 
+
+			if (  abs( abs(lep_eta[0])-1.5 ) < 0.1  ||  abs( abs(lep_eta[1])-1.5 ) < 0.1  ) continue;
+
 
 			if ( zll_mass < 81. || zll_mass > 101.   ) continue; 
 
-			if ( lep_pt[0] < 25. || lep_pt[1] < 20.  ) continue; 	//cout << lep_pt[0] << " -- " << lep_pt[1] << endl; 
+			if ( lep_pt[0] < 20. || lep_pt[1] < 20.  ) continue; 	//cout << lep_pt[0] << " -- " << lep_pt[1] << endl; 
 
 			//if ( zll_pt < 50.                        ) continue;    //cout << zll_pt << endl;
+
 
 
 			if( isData[process] ){   // triggers
@@ -429,14 +445,28 @@ void FillHistogram( int process ){
 		// -----------------------------------------------------
 
 
-		// ----- sync -------------------------
+		// ----- sync -------------------------			
 
-		//cout << ievt << "\t" << run << "\t" << lumi << "\t" << evt << endl; 
 
-		if(  process == DoubleEG2016B    &&  run == 273158  ) 	sync << Form( "%8u \t %4u \t %10llu \t %7.2f \t %7.2f \t %7.2f \t %7.2f \n", run, lumi, evt, zll_pt, lep_pt[0], lep_pt[1], met_pt );
-		if(  process == DoubleEG2016C    &&  run == 275658  ) 	sync << Form( "%8u \t %4u \t %10llu \t %7.2f \t %7.2f \t %7.2f \t %7.2f \n", run, lumi, evt, zll_pt, lep_pt[0], lep_pt[1], met_pt );
-		if(  process == DoubleEG2016D    &&  run == 276315  ) 	sync << Form( "%8u \t %4u \t %10llu \t %7.2f \t %7.2f \t %7.2f \t %7.2f \n", run, lumi, evt, zll_pt, lep_pt[0], lep_pt[1], met_pt );
-		if(  process == DoubleMuon2016B  &&  run == 273158  ) 	sync << Form( "%8u \t %4u \t %10llu \t %7.2f \t %7.2f \t %7.2f \t %7.2f \n", run, lumi, evt, zll_pt, lep_pt[0], lep_pt[1], met_pt );
+
+		//if(  ( process == DoubleEG2016B  &&  run == 273158 )  ||  ( process == DoubleMuon2016B  &&  run == 273158 )  ){
+
+
+
+		//if(  process == DY_mm  &&  ( lumi > 153860 && lumi <= 155000 ) ){
+
+		//	sync << Form( "%12u * %12u * %12llu * %12f * %12f * %12f * %12f *\n", run, lumi, evt, zll_pt, lep_pt[0], lep_pt[1], met_pt );
+
+		//}
+
+
+
+
+		//} 
+
+		//if(  process == DoubleEG2016C    &&  run == 275658  )
+		//if(  process == DoubleEG2016D    &&  run == 276315  ) 
+		
 
 		// ------------------------------------
 
@@ -449,9 +479,11 @@ void FillHistogram( int process ){
 
 			//int nVert_rw;  ( nVert >= 38 )  ?  nVert_rw = 38  :  nVert_rw = nVert; 
 
-			eventW *= puWeight * h_pu[TheKanal] -> GetBinContent( h_pu[TheKanal]->FindBin(nVert) );   //cout << h_pu[TheKanal] -> GetBinContent( h_pu[TheKanal]->FindBin(nVert) ) << endl; 		
+			float puW = h_pu[TheKanal] -> GetBinContent( h_pu[TheKanal]->FindBin(nVert) );
 
-			eventW *= genWeight/abs(genWeight);
+			eventW *= puW;   		
+
+			eventW *= genWeight;// /abs(genWeight);
 
 		}
 
@@ -539,6 +571,9 @@ void FillHistogram( int process ){
 			uPara += qT.Mod();   // cout <<  uPara << endl;
 
 			float uPerp = (  uT.Px() * qT.Py() - uT.Py() * qT.Px()  ) / qT.Mod();
+
+
+			if(run==273158 && s==nominal) sync << Form( "*%12llu*%12f*%12f*\n", evt, uPara, uPerp );
 
 
 			h_global_W     [parall_G][process][s]    -> Fill( uPara   , eventW );  

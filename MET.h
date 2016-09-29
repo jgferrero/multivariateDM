@@ -60,10 +60,10 @@ enum{ DoubleEG2016B, DoubleEG2016C, DoubleEG2016D, DoubleEG2016E, DoubleEG2016F,
       nprocess };   // APPROVAL ( Maria should be aware of those ones commented, 10.ix )
 
 
-TString allhistosWriteTo  = "sync"; //""160910_further-processes"; //20Aug_qT-gt-50
-TString allhistosReadFrom = "160914_Zee_yes-pu"; // "17Aug_new-xs_pu-rw" 
+TString allhistosWriteTo  = "sync-uPara-uPerp"; 
+TString allhistosReadFrom = "160926_definitivo_runs-B-C-D_talk-28ix"; 
 
-const float TheUnifiedLuminosity = 20.110; 
+const float TheUnifiedLuminosity = 12.90; 
       float TheLuminosity[nkanal];
 
 const bool DoFillHistograms = 1;  
@@ -77,8 +77,8 @@ const bool RunOverAllMC   = 1;
 
       int _TotalEntries[nprocess]; 
 
-const int MaxEntriesData    = 100;
-const int MaxEntriesMC      = 1000;
+const int MaxEntriesData    = 1000;
+const int MaxEntriesMC      = 100;
 
 const int alpha = DoubleEG2016B;
 const int omega = DoubleEG2016B;
@@ -183,9 +183,9 @@ void MoveOverflows   ( TH1* hist                                                
 
 void Assign(){
 
-	TheLuminosity[Zee  ] = 5.885 + 2.646 + 4.329;// + 4.049 ;//+ 3.159;  // fb⁻¹  
- 	TheLuminosity[Zmumu] = 5.920 + 2.645 + 4.330 + 4.050 + 3.160;  // fb⁻¹  
-	TheLuminosity[Gamma] = 5.9   + 2.65  + 4.35  + 4.050 + 3.16 ;  // fb⁻¹     
+	TheLuminosity[Zee  ] = /*5.885 + 2.646 + 4.329;*/ 4.049 + 3.159;  // fb⁻¹  
+ 	TheLuminosity[Zmumu] = /*5.920 + 2.645 + 4.330;*/ 4.050 + 3.160;  // fb⁻¹  
+	TheLuminosity[Gamma] = /*5.9   + 2.65  + 4.35 ;*/ 4.050 + 3.16 ;  // fb⁻¹     
 
 	NTuplaDir[Zee  ] = "~/eos/cms/store/group/phys_jetmet/dalfonso/ICHEP/diELE/APPROVAL/" ;
 	NTuplaDir[Zmumu] = "~/eos/cms/store/group/phys_jetmet/dalfonso/ICHEP/diMUON/APPROVAL/";
@@ -465,7 +465,7 @@ void BuildRatio( int ivar, int nbin ) {
 
 void GetPUreweighting( int ch ) {
 
-	TFile* myfile = new TFile("pileup/PU-reweighting_160914_Zee-no-pu.root", "update");
+	TFile* myfile = new TFile("pileup/xxx.root", "update");
 
 	TH1F* h_pu = (TH1F*) h_data[nvert][nominal] -> Clone( "h_pu-reweighting_" + kanalID[ch] );
 
