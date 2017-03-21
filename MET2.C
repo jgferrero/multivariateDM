@@ -11,40 +11,60 @@ void MET2(){
 
 	TFile* allhistos = new TFile( "histograms/" + allhistosReadFrom + ".root", "read" );
 
+	//TFile* auxiliar  = new TFile( "histograms/161021-wtf.root", "read" );
+
 
 	for( int s = 0; s < nsystematic; s++ ){
 
 
 		for( int i = 0; i < nvariable_G; i++ ){
 
-			for( int j = 0; j < nprocess; j++ ){
-			//for( int j = alpha; j < omega+1; j++ ){
+			//for( int j = 0; j < nprocess; j++ ){
+			for( int j = alpha; j < omega+1; j++ ){
 
-				/*if (  j == DoubleEG2016E     || j == DoubleEG2016F     ) continue; 
-				if (  j == DoubleMuon2016E   || j == DoubleMuon2016F   ) continue; 
-				if (  j == SinglePhoton2016E || j == SinglePhoton2016F ) continue;*/
+				//if (  j == DoubleEG2016E     || j == DoubleEG2016F     || j == DoubleEG2016G     ) continue; 
+				//if (  j == DoubleMuon2016E   || j == DoubleMuon2016F   || j == DoubleMuon2016G   ) continue; 
+				//if (  j == SinglePhoton2016E || j == SinglePhoton2016F || j == SinglePhoton2016G ) continue;
 
-				if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
-				if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
-				if ( j == SinglePhoton2016B || j == SinglePhoton2016C || j == SinglePhoton2016D ) continue; 
+				//if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
+				//if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
+				//if ( j == SinglePhoton2016B || j == SinglePhoton2016C || j == SinglePhoton2016D ) continue; 
 
-				int TheKanal = kanal[j]; 
+				int TheKanal = kanal[j];
+ 
+
+				//if ( i == VpT && j == DY_mm ){
+
+				//h_global[i][j][s] = (TH1F*) auxiliar -> Get("h_global_" + variableID_G[i] + "_" + kanalID[TheKanal] + "_" + processID[j]+ "_" + systematicID[s] );
+
+				//}
+
+				//else{
 
 				h_global[i][j][s] = (TH1F*) allhistos -> Get("h_global_" + variableID_G[i] + "_" + kanalID[TheKanal] + "_" + processID[j]+ "_" + systematicID[s] );
 
+				//}
+
+
 				MoveOverflows( h_global[i][j][s] );
+
+				//if ( i == MET ) h_global[i][j][s] -> Rebin();
 
 			}
 
 		}
 
 
-		for( int j = 0; j < nprocess; j++ ){
-		//for( int j = alpha; j < omega+1; j++ ){
+		//for( int j = 0; j < nprocess; j++ ){
+		for( int j = alpha; j < omega+1; j++ ){
 
-			if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
-			if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
-			if ( j == SinglePhoton2016B || j == SinglePhoton2016C || j == SinglePhoton2016D ) continue;
+			//if (  j == DoubleEG2016E     || j == DoubleEG2016F     || j == DoubleEG2016G     ) continue; 
+			//if (  j == DoubleMuon2016E   || j == DoubleMuon2016F   || j == DoubleMuon2016G   ) continue; 
+			//if (  j == SinglePhoton2016E || j == SinglePhoton2016F || j == SinglePhoton2016G ) continue;
+
+			//if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
+			//if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
+			//if ( j == SinglePhoton2016B || j == SinglePhoton2016C || j == SinglePhoton2016D ) continue;
 
 			if( isData[j] ) continue; 
 
@@ -62,7 +82,7 @@ void MET2(){
 
 		for( int i = 0; i < nvariable_G; i++ ){
 
-				h_global[i][TT_ee][s]->Add(h_global[i][TTsemiT_ee   ][s]);
+				/*h_global[i][TT_ee][s]->Add(h_global[i][TTsemiT_ee   ][s]);
 				h_global[i][TT_ee][s]->Add(h_global[i][TTsemiTbar_ee][s]);
 
 				h_global[i][WW_ee][s]->Add(h_global[i][WZTo2L2Q_ee  ][s]);
@@ -78,7 +98,7 @@ void MET2(){
 				h_global[i][WW_ee][s]->Add(h_global[i][SingleTop2_ee][s]);
 				h_global[i][WW_ee][s]->Add(h_global[i][SingleTop3_ee][s]);
 				h_global[i][WW_ee][s]->Add(h_global[i][SingleTop4_ee][s]);
-				h_global[i][WW_ee][s]->Add(h_global[i][SingleTop5_ee][s]);
+				h_global[i][WW_ee][s]->Add(h_global[i][SingleTop5_ee][s]);*/
 
 
 				h_global[i][TT_mm][s]->Add(h_global[i][TTsemiT_mm   ][s]);
@@ -101,7 +121,7 @@ void MET2(){
 
 
 
-				h_global[i][GJets40100][s]->Add(h_global[i][GJets100200][s]);
+				/*h_global[i][GJets40100][s]->Add(h_global[i][GJets100200][s]);
 				h_global[i][GJets40100][s]->Add(h_global[i][GJets200400][s]);
 				h_global[i][GJets40100][s]->Add(h_global[i][GJets400600][s]);
 				h_global[i][GJets40100][s]->Add(h_global[i][GJets600Inf][s]);  
@@ -125,26 +145,27 @@ void MET2(){
 
 				h_global[i][WGJets ][s]->Add( h_global[i][WGToLNuG       ][s] );
 
-				h_global[i][TTGJets][s]->Add( h_global[i][TGJets         ][s] );
+				h_global[i][TTGJets][s]->Add( h_global[i][TGJets         ][s] );*/
 
 		}
 
 	}   // systematic
 
-	GlobalPlots( Zee   ); 
+
+	//GlobalPlots( Zee   ); 
 	GlobalPlots( Zmumu ); 
-	GlobalPlots( Gamma ); 
+	//GlobalPlots( Gamma ); 
 
 }
 
 
 void GlobalPlots( int ch ){  
 
-	int runB, runC, runD, runE, runF; 
+	int runB, runC, runD, runE, runF, runG; 
 
-	if ( ch == Zee   ) { runB =DoubleEG2016B    ; runC =DoubleEG2016C    ; runD =DoubleEG2016D    ; runE =DoubleEG2016E    ; runF =DoubleEG2016F    ; }
-	if ( ch == Zmumu ) { runB =DoubleMuon2016B  ; runC =DoubleMuon2016C  ; runD =DoubleMuon2016D  ; runE =DoubleMuon2016E  ; runF =DoubleMuon2016F  ; }
-	if ( ch == Gamma ) { runB =SinglePhoton2016B; runC =SinglePhoton2016C; runD =SinglePhoton2016D; runE =SinglePhoton2016E; runF =SinglePhoton2016F; }
+	if ( ch == Zee   ) { runB =DoubleEG2016B    ; runC =DoubleEG2016C    ; runD =DoubleEG2016D    ; runE =DoubleEG2016E    ; runF =DoubleEG2016F    ; runG =DoubleEG2016G    ;}
+	if ( ch == Zmumu ) { runB =DoubleMuon2016B  ; runC =DoubleMuon2016C  ; runD =DoubleMuon2016D  ; runE =DoubleMuon2016E  ; runF =DoubleMuon2016F  ; runG =DoubleMuon2016G  ;}
+	if ( ch == Gamma ) { runB =SinglePhoton2016B; runC =SinglePhoton2016C; runD =SinglePhoton2016D; runE =SinglePhoton2016E; runF =SinglePhoton2016F; runG =SinglePhoton2016G;}
 
 	
 	for( int s = 0; s < nsystematic; s++ ){
@@ -152,14 +173,15 @@ void GlobalPlots( int ch ){
 
 		for( int i = 0; i < nvariable_G; i++ ){
 
-			//h_data[i][s] = (TH1F*) h_global[i][runB][s] -> Clone( "h_data_" + variableID_G[i] + "_" + systematicID[s] );
+			h_data[i][s] = (TH1F*) h_global[i][runB][s] -> Clone( "h_data_" + variableID_G[i] + "_" + systematicID[s] );
 
-			//h_data[i][s] -> Add( h_global[i][runC][s] );
-			//h_data[i][s] -> Add( h_global[i][runD][s] );
+			h_data[i][s] -> Add( h_global[i][runC][s] );
+			h_data[i][s] -> Add( h_global[i][runD][s] );
 
-			h_data[i][s] = (TH1F*) h_global[i][runE][s] -> Clone( "h_data_" + variableID_G[i] + "_" + systematicID[s] );
-			//h_data[i][s] -> Add( h_global[i][runE][s] );
+			//h_data[i][s] = (TH1F*) h_global[i][runE][s] -> Clone( "h_data_" + variableID_G[i] + "_" + systematicID[s] );
+			h_data[i][s] -> Add( h_global[i][runE][s] );
 			h_data[i][s] -> Add( h_global[i][runF][s] );
+			h_data[i][s] -> Add( h_global[i][runG][s] );
 
 			h_data[i][s] -> SetMarkerStyle(20);
 
@@ -168,6 +190,7 @@ void GlobalPlots( int ch ){
 			h_data[i][s] -> SetLineColor(kBlack);
 
 		}
+
 
 
 		//-- h_mc 
@@ -212,7 +235,7 @@ void GlobalPlots( int ch ){
 
 	//-- PU-reweighting
 
-	GetPUreweighting( ch );
+	//GetPUreweighting( ch );
 
 
 
@@ -291,7 +314,7 @@ void GlobalPlots( int ch ){
 
 		pad2 -> cd();
 
-		pad2 -> SetLogy(); 
+		pad2 -> SetLogy(); //h_data[i][nominal] -> SetMaximum( 1.8* h_data[i][nominal]->GetMaximum() );  
 
 		h_data[i][nominal] -> SetTitle("");
 
@@ -369,7 +392,7 @@ void GlobalPlots( int ch ){
  		SetAxis( Ratio[i], variableIDfancy_G[i], "data / MC ", 1.4, 0.75 );
 
       		//Ratio[i] -> GetYaxis() -> SetRangeUser(1e-1, 1e1);
-      		Ratio[i] -> GetYaxis() -> SetRangeUser(0., 2.);
+      		Ratio[i] -> GetYaxis() -> SetRangeUser(0.0, 2.0);
 
 		Ratio[i] -> Draw("ep");
 		Unc[i]   -> Draw("e2, same");
@@ -380,8 +403,8 @@ void GlobalPlots( int ch ){
 
       		// ---------------------------------------------------------------
 
-		c -> SaveAs( "global/" + kanalID[ch] + "_" + variableID_G[i] + ".pdf" );
-		c -> SaveAs( "global/" + kanalID[ch] + "_" + variableID_G[i] + ".png" );
+		c -> SaveAs( "/afs/cern.ch/user/j/jgarciaf/www/figures/MET_" + www + "/nTrueInt/global/" + kanalID[ch] + "_" + variableID_G[i] + ".pdf" );
+		c -> SaveAs( "/afs/cern.ch/user/j/jgarciaf/www/figures/MET_" + www + "/nTrueInt/global/" + kanalID[ch] + "_" + variableID_G[i] + ".png" );
 
 	}
  

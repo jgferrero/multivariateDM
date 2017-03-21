@@ -28,7 +28,6 @@
 
 using namespace RooFit;
 
-
 enum{ Zee, Zmumu, Gamma, nkanal };
  
 enum{ parall_G, transv_G, MET, VpT, nvert, nvariable_G };
@@ -39,17 +38,17 @@ enum{ pT, sumET, NVtx, nparameter};
 enum{ nominal, JECu, JECd, UnEu, UnEd, nsystematic }; 
 
 
-enum{ DoubleEG2016B, DoubleEG2016C, DoubleEG2016D, DoubleEG2016E, DoubleEG2016F, 
+enum{ DoubleEG2016B, DoubleEG2016C, DoubleEG2016D, DoubleEG2016E, DoubleEG2016F, DoubleEG2016G,
       DY_ee, TT_ee, TTsemiT_ee, TTsemiTbar_ee, 
       WW_ee, WZTo2L2Q_ee, WZTo3LNu_ee, ZZTo4L_ee, ZZTo2L2Q_ee, ZZTo2L2Nu_ee, WWW_ee, WWZ_ee, WZZ_ee, ZZZ_ee, 
       SingleTop1_ee, SingleTop2_ee, SingleTop3_ee, SingleTop4_ee, SingleTop5_ee,
 
-      DoubleMuon2016B, DoubleMuon2016C, DoubleMuon2016D, DoubleMuon2016E, DoubleMuon2016F, 
+      DoubleMuon2016B, DoubleMuon2016C, DoubleMuon2016D, DoubleMuon2016E, DoubleMuon2016F, DoubleMuon2016G,  
       DY_mm, TT_mm, TTsemiT_mm, TTsemiTbar_mm,
       WW_mm, WZTo2L2Q_mm, WZTo3LNu_mm, ZZTo4L_mm, ZZTo2L2Q_mm, ZZTo2L2Nu_mm, WWW_mm, WWZ_mm, WZZ_mm, ZZZ_mm,
       SingleTop1_mm, SingleTop2_mm, SingleTop3_mm, SingleTop4_mm, SingleTop5_mm,
 
-      SinglePhoton2016B, SinglePhoton2016C, SinglePhoton2016D, SinglePhoton2016E, SinglePhoton2016F,
+      SinglePhoton2016B, SinglePhoton2016C, SinglePhoton2016D, SinglePhoton2016E, SinglePhoton2016F, SinglePhoton2016G,
       GJets40100, GJets100200, GJets200400, GJets400600, GJets600Inf, 
       QCD200300, QCD300500, QCD500700, QCD7001000, QCD10001500, QCD15002000, QCD2000Inf,
       WJets100200, WJets200400, WJets400600, WJets600800, WJets8001200, WJets12002500, WJets2500Inf,
@@ -60,35 +59,39 @@ enum{ DoubleEG2016B, DoubleEG2016C, DoubleEG2016D, DoubleEG2016E, DoubleEG2016F,
       nprocess };   // APPROVAL ( Maria should be aware of those ones commented, 10.ix )
 
 
-TString allhistosWriteTo  = "sync-uPara-uPerp"; 
-TString allhistosReadFrom = "160926_definitivo_runs-B-C-D_talk-28ix"; 
+TString allhistosWriteTo  = "170131_Zmm_rereco-data_Spring16-MC_nTrueInt"; 
+TString allhistosReadFrom = "170131_Zmm_rereco-data_Spring16-MC_nTrueInt"; 
+TString www               = "170130_Zmm-rereco"; 
 
-const float TheUnifiedLuminosity = 12.90; 
+const TString campaign = "ICHEP"; //"METpaper/v1"; -- "ICHEP"; 
+
+const float TheUnifiedLuminosity = 27.659;   // E-F-G = 14.76 
       float TheLuminosity[nkanal];
 
-const bool DoFillHistograms = 1;  
-const bool DoGlobalPlots    = 0; 
-const bool DoFit            = 0; 
+const bool DoFillHistograms = 0;  
+const bool DoGlobalPlots    = 1; 
+const bool DoFit            = 1; 
 
 const bool SkipEventLoop    = 0; 
 
 const bool RunOverAllData = 1; 
 const bool RunOverAllMC   = 1; 
 
-      int _TotalEntries[nprocess]; 
+const int MaxEntriesData    = 10;
+const int MaxEntriesMC      = 100000;
 
-const int MaxEntriesData    = 1000;
-const int MaxEntriesMC      = 100;
+const int alpha = DoubleMuon2016B;
+const int omega = SingleTop5_mm;
 
-const int alpha = DoubleEG2016B;
-const int omega = DoubleEG2016B;
-
-const bool PrintSync = true; 
+const bool PrintSync = false; 
 
 
 TString NTuplaDir   [nkanal]; 
+TString NTuplaDataRerecoDir ; 
 TString kanalID     [nkanal]; 
 TString kanalIDfancy[nkanal]; 
+
+TString METid[3];   // { old-puppi, new-puppi, pf-met} (31.x.16)
 
 
 const bool GJetsMC = false;
@@ -129,7 +132,7 @@ float maxNVtx  =  40.; float minNVtx  = 0.; const int nbinNVtx  =  8; float _upN
 float maxuPara = 200.; float minuPara = -200.; const int nbinuPara = 80; 
 float maxuPerp = 200.; float minuPerp = -200.; const int nbinuPerp = 80; 
 float maxscale =   5.; float minscale =   -3.; const int nbinscale =400; 
-float maxMET   = 200.; float minMET   =    0.; const int nbinMET   = 40;
+float maxMET   = 200.; float minMET   =    0.; const int nbinMET   = 40;                         // EHHHHHHHHHHHHHH !!!!
 float maxnvert =  50.; float minnvert =    0.; const int nbinnvert = 50; 
 
 
@@ -141,25 +144,40 @@ const int aa = nvariable_G;   // just for next blocks
 const int bb = nvariable_R;   // just for next blocks
 const int zz = nprocess   ;   // just for next blocks
 
-// ----- write ----------------------------------------------------
-TH1F*    h_global_W       [aa][zz]                   [nsystematic];
-TH1F*    h_resol_pT_W     [bb][zz][nbinpT   ]        [nsystematic];
-TH1F*    h_resol_sumET_W  [bb][zz][nbinsumET]        [nsystematic];
-TH1F*    h_resol_NVtx_W   [bb][zz][nbinNVtx ]        [nsystematic]; 
-// ----- read -----------------------------------------------------
+// ----- write --------------------------------------------------------
+TH1F*    h_global_W           [aa][zz]                   [nsystematic];
+TString  h_global_W_name      [aa][zz]                   [nsystematic];
+TH1F*    h_resol_pT_W         [bb][zz][nbinpT   ]        [nsystematic];
+TString  h_resol_pT_W_name    [bb][zz][nbinpT   ]        [nsystematic];
+TH1F*    h_resol_sumET_W      [bb][zz][nbinsumET]        [nsystematic];
+TString  h_resol_sumET_W_name [bb][zz][nbinsumET]        [nsystematic];
+TH1F*    h_resol_NVtx_W       [bb][zz][nbinNVtx ]        [nsystematic]; 
+TString  h_resol_NVtx_W_name  [bb][zz][nbinNVtx ]        [nsystematic]; 
+// ----- read ---------------------------------------------------------
 TH1F*    h_global         [aa][zz]                   [nsystematic];
+TH1F*    h_old_puppi      [aa][zz]                   [nsystematic];
+TH1F*    h_new_puppi      [aa][zz]                   [nsystematic];
+TH2F*    h_old_new        [aa][zz]                   [nsystematic];
 TH1F*    h_data           [aa]                       [nsystematic];
 TH1F*    h_mc             [aa]                       [nsystematic];
 THStack* s_global         [aa]                                    ;
 TH1F*    Ratio            [aa]                                    ;
 TH1F*    Unc              [aa]                                    ;
-TH1F*    h_resol_pT       [bb][zz][nbinpT   ]        [nsystematic];
-TH1F*    h_resol_pT_fit   [bb][3 ][nbinpT   ][nkanal][nsystematic];
-TH1F*    h_resol_sumET    [bb][zz][nbinsumET]        [nsystematic];
-TH1F*    h_resol_sumET_fit[bb][3 ][nbinsumET][nkanal][nsystematic];
-TH1F*    h_resol_NVtx     [bb][zz][nbinNVtx ]        [nsystematic]; 
-TH1F*    h_resol_NVtx_fit [bb][3 ][nbinNVtx ][nkanal][nsystematic];
-TH1F*    h_SR[3][nparameter][nkanal];   // 3 histos{ up pad, ratio, ratio-unc } x 3 param x 3 kanales
+TH1F*    h_resol_pT                [bb][zz][nbinpT   ]        [nsystematic];
+TH1F*    h_resol_pT_old_puppi      [bb][zz][nbinpT   ]        [nsystematic];  // 31.x.16
+TH1F*    h_resol_pT_new_puppi      [bb][zz][nbinpT   ]        [nsystematic];  // 31.x.16
+TH1F*    h_resol_pT_fit            [bb][3 ][nbinpT   ][nkanal][nsystematic];
+TH1F*    h_resol_pT_fit_old_puppi  [bb][1 ][nbinpT   ][nkanal][nsystematic];  // 31.x.16
+TH1F*    h_resol_pT_fit_new_puppi  [bb][1 ][nbinpT   ][nkanal][nsystematic];  // 31.x.16
+TH1F*    h_resol_sumET             [bb][zz][nbinsumET]        [nsystematic];
+TH1F*    h_resol_sumET_fit         [bb][3 ][nbinsumET][nkanal][nsystematic];
+TH1F*    h_resol_NVtx              [bb][zz][nbinNVtx ]        [nsystematic]; 
+TH1F*    h_resol_NVtx_old_puppi    [bb][zz][nbinNVtx ]        [nsystematic];  // 31.x.16 
+TH1F*    h_resol_NVtx_new_puppi    [bb][zz][nbinNVtx ]        [nsystematic];  // 31.x.16 
+TH1F*    h_resol_NVtx_fit          [bb][3 ][nbinNVtx ][nkanal][nsystematic];
+TH1F*    h_resol_NVtx_fit_old_puppi[bb][3 ][nbinNVtx ][nkanal][nsystematic];  // 31.x.16
+TH1F*    h_resol_NVtx_fit_new_puppi[bb][3 ][nbinNVtx ][nkanal][nsystematic];  // 31.x.16
+TH1F*    h_SR[3][nparameter][nkanal];   // 3 histos{ up pad, ratio, ratio-unc } x 3 param x 3 kanales  (  nkanal = { old-puppi, new-puppi, pf-met } in MET3small.C  )
 TString  histoID[3]; 
 // ----------------------------------------------------------------
 		 
@@ -183,13 +201,15 @@ void MoveOverflows   ( TH1* hist                                                
 
 void Assign(){
 
-	TheLuminosity[Zee  ] = /*5.885 + 2.646 + 4.329;*/ 4.049 + 3.159;  // fb⁻¹  
- 	TheLuminosity[Zmumu] = /*5.920 + 2.645 + 4.330;*/ 4.050 + 3.160;  // fb⁻¹  
-	TheLuminosity[Gamma] = /*5.9   + 2.65  + 4.35 ;*/ 4.050 + 3.16 ;  // fb⁻¹     
+	TheLuminosity[Zee  ] = 5.885 + 2.646 + 4.329; // 4.049 + 3.159 + 7.554;  // fb⁻¹  
+ 	TheLuminosity[Zmumu] = 5.920 + 2.645 + 4.330 + 4.050 + 3.160 + 7.554;  // fb⁻¹  
+	TheLuminosity[Gamma] = 5.9   + 2.65  + 4.35 ; // 4.050 + 3.16  + 7.554;  // fb⁻¹     
 
-	NTuplaDir[Zee  ] = "~/eos/cms/store/group/phys_jetmet/dalfonso/ICHEP/diELE/APPROVAL/" ;
-	NTuplaDir[Zmumu] = "~/eos/cms/store/group/phys_jetmet/dalfonso/ICHEP/diMUON/APPROVAL/";
-	NTuplaDir[Gamma] = "~/eos/cms/store/group/phys_jetmet/dalfonso/ICHEP/gamma/APPROVAL/" ;
+	NTuplaDir[Zee  ] = "~/eos/cms/store/group/phys_jetmet/dalfonso/" + campaign + "/diELE/APPROVAL/" ;
+	NTuplaDir[Zmumu] = "~/eos/cms/store/group/phys_jetmet/dalfonso/" + campaign + "/diMUON/APPROVAL/";
+	NTuplaDir[Gamma] = "~/eos/cms/store/group/phys_jetmet/dalfonso/" + campaign + "/gamma/APPROVAL/" ;
+
+	NTuplaDataRerecoDir = "~/eos/cms/store/group/phys_jetmet/dalfonso/METrerecoTEST/";
 
 	kanalID[Zee  ] = "Zee"  ;
 	kanalID[Zmumu] = "Zmm"  ;
@@ -207,11 +227,13 @@ void Assign(){
 
 	int i = 0; 
 
-isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "data";  sampleID[i] = "DoubleEG_Run2016B_PromptReco_v2"  ; processID[i++] = "DoubleEG2016B";    
-isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016C_PromptReco_v2"  ; processID[i++] = "DoubleEG2016C";
-isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016D_PromptReco_v2"  ; processID[i++] = "DoubleEG2016D";
-isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016E_PromptReco_v2"  ; processID[i++] = "DoubleEG2016E";
-isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016F_PromptReco_v1"  ; processID[i++] = "DoubleEG2016F";
+isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "data";  sampleID[i] = "DoubleEG_Run2016B_PromptReco_v2"                     ; processID[i++] = "DoubleEG2016B";    
+isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016C_PromptReco_v2"                     ; processID[i++] = "DoubleEG2016C";
+isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016D_PromptReco_v2"                     ; processID[i++] = "DoubleEG2016D";
+isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016E_PromptReco_v2"                     ; processID[i++] = "DoubleEG2016E";
+isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016F_PromptReco_v1"                     ; processID[i++] = "DoubleEG2016F";
+isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "Cert_271036-280385/DoubleEG_Run2016G_PromptReco_v1"  ; processID[i++] = "DoubleEG2016G";
+//isData[i] = 1; kanal[i] = 0; processIDfancy[i] = "    ";  sampleID[i] = "DoubleEG_Run2016G_PromptReco_v1"                     ; processID[i++] = "DoubleEG2016G";
 
 isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "DY"; ProcessColor[i] = kYellow; sampleID[i] = "DYJetsToLL_M50"             ; processID[i] = "DYJetsToLL_M50"     ; xs[i++] = 6025200. ;  
 isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "tt"; ProcessColor[i] = kRed   ; sampleID[i] = "TTJets_DiLepton"            ; processID[i] = "TTJets_DiLepton"    ; xs[i++] =   88287.7;  
@@ -235,13 +257,16 @@ isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = k
 isData[i] = 0; kanal[i] = 0; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "TToLep_sch"     ; processID[i] = "TToLep_sch"     ; xs[i++] =    3680.64;
 
 
-isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "data";  sampleID[i] = "DoubleMuon_Run2016B_PromptReco_v2"; processID[i++] = "DoubleMuon2016B";
-isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016C_PromptReco_v2"; processID[i++] = "DoubleMuon2016C";
-isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016D_PromptReco_v2"; processID[i++] = "DoubleMuon2016D";
-isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016E_PromptReco_v2"; processID[i++] = "DoubleMuon2016E";
-isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016F_PromptReco_v1"; processID[i++] = "DoubleMuon2016F";
+isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "data";  sampleID[i] = "DoubleMuon_Run2016B_23Sep2016"                   ; processID[i++] = "DoubleMuon2016B";
+isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016C_23Sep2016"                   ; processID[i++] = "DoubleMuon2016C";
+isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016D_23Sep2016"                   ; processID[i++] = "DoubleMuon2016D";
+isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016E_23Sep2016"                   ; processID[i++] = "DoubleMuon2016E";
+isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016F_23Sep2016"                   ; processID[i++] = "DoubleMuon2016F";
+//isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016G_PromptReco_v1"; processID[i++] = "DoubleMuon2016G";
+isData[i] = 1; kanal[i] = 1; processIDfancy[i] = "    ";  sampleID[i] = "DoubleMuon_Run2016G_23Sep2016"                   ; processID[i++] = "DoubleMuon2016G";
 
 isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "DY"; ProcessColor[i] = kYellow; sampleID[i] = "DYJetsToLL_M50"             ; processID[i] = "DYJetsToLL_M50"     ; xs[i++] = 6025200. ;  
+//isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "DY"; ProcessColor[i] = kYellow; sampleID[i] = "DYJetsToLL_M50_LO_reHLT"    ; processID[i] = "DYJetsToLL_M50_LO_reHLT"; xs[i++] = 6025200. ; 
 isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "tt"; ProcessColor[i] = kRed   ; sampleID[i] = "TTJets_DiLepton"            ; processID[i] = "TTJets_DiLepton"    ; xs[i++] =   88287.7;  
 isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "  "; ProcessColor[i] = kRed   ; sampleID[i] = "TTJets_SingleLeptonFromT"   ; processID[i] = "TTJets_SemiFromT"   ; xs[i++] =  176575.4;
 isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "  "; ProcessColor[i] = kRed   ; sampleID[i] = "TTJets_SingleLeptonFromTbar"; processID[i] = "TTJets_SemiFromTbar"; xs[i++] =  176575.4;
@@ -263,11 +288,12 @@ isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = k
 isData[i] = 0; kanal[i] = 1; processIDfancy[i] = "        "; ProcessColor[i] = kBlue  ; sampleID[i] = "TToLep_sch"     ; processID[i] = "TToLep_sch"     ; xs[i++] =    3680.64;
 
 
-isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016B_PromptReco_v2";           processID[i] = "SinglePhoton2016B"      ; processIDfancy[i++] = "data";
-isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016C_PromptReco_v2";           processID[i] = "SinglePhoton2016C"      ; processIDfancy[i++] = "    ";
-isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016D_PromptReco_v2";           processID[i] = "SinglePhoton2016D"      ; processIDfancy[i++] = "    "; 
-isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016E_PromptReco_v2";           processID[i] = "SinglePhoton2016E"      ; processIDfancy[i++] = "    "; 
-isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016F_PromptReco_v1";           processID[i] = "SinglePhoton2016F"      ; processIDfancy[i++] = "    ";  // not yet
+isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016B_PromptReco_v2"                   ;           processID[i] = "SinglePhoton2016B"      ; processIDfancy[i++] = "data";
+isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016C_PromptReco_v2"                   ;           processID[i] = "SinglePhoton2016C"      ; processIDfancy[i++] = "    ";
+isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016D_PromptReco_v2"                   ;           processID[i] = "SinglePhoton2016D"      ; processIDfancy[i++] = "    "; 
+isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016E_PromptReco_v2"                   ;           processID[i] = "SinglePhoton2016E"      ; processIDfancy[i++] = "    "; 
+isData[i] = 1; kanal[i] = 2; sampleID[i] = "SinglePhoton_Run2016F_PromptReco_v1"                   ;           processID[i] = "SinglePhoton2016F"      ; processIDfancy[i++] = "    ";
+isData[i] = 1; kanal[i] = 2; sampleID[i] = "Cert_271036-280385/SinglePhoton_Run2016G_PromptReco_v1";           processID[i] = "SinglePhoton2016G"      ; processIDfancy[i++] = "    ";  
 
 isData[i] = 0; kanal[i] = 2; sampleID[i] = "GJets_HT40to100"        ; xs[i] =   20730000.0; processID[i] = "GJets40100"     ; processIDfancy[i] = "#gamma + jets"  ; ProcessColor[i++] = kYellow;
 isData[i] = 0; kanal[i] = 2; sampleID[i] = "GJets_HT100to200"       ; xs[i] =    9226000.0; processID[i] = "GJets100200"    ; processIDfancy[i] = " "              ; ProcessColor[i++] = kYellow;
@@ -311,7 +337,8 @@ isData[i] = 0; kanal[i] = 2; sampleID[i] = "TGJets"         ; xs[i] =   2967. ; 
 
 	variableIDfancy_G[parall_G] = "u_{||} + q_{T} [GeV]"   ; 
 	variableIDfancy_G[transv_G] = "u_{#perp}  [GeV]"       ;
-	variableIDfancy_G[MET     ] = "E_{T}^{miss} [GeV]"     ;
+	variableIDfancy_G[MET     ] = "(PF) E_{T}^{miss} [GeV]"     ;   
+	//variableIDfancy_G[MET     ] = "(Puppi) E_{T}^{miss} [GeV]";
 	variableIDfancy_G[VpT     ] = "q_{T} [GeV]"            ;
 	variableIDfancy_G[nvert   ] = "Number of Vertices"     ;
 
@@ -341,15 +368,18 @@ isData[i] = 0; kanal[i] = 2; sampleID[i] = "TGJets"         ; xs[i] =   2967. ; 
 
 	histoID[0] = "up"            ;
 	histoID[1] = "ratio"         ;
-	histoID[2] = "ratio-unc"     ;
+	histoID[2] = "ratio_unc"     ;
 
+	METid[0] = "old_puppi";
+	METid[1] = "new_puppi";
+	METid[2] = "pf";
 
 	
 	systematicID[nominal] = "nominal"; 
-	systematicID[JECu   ] = "JEC-up" ; 
-	systematicID[JECd   ] = "JEC-do" ; 
-	systematicID[UnEu   ] = "UnE-up" ; 
-	systematicID[UnEd   ] = "UnE-do" ; 
+	systematicID[JECu   ] = "JECup" ; 
+	systematicID[JECd   ] = "JECdo" ; 
+	systematicID[UnEu   ] = "UnEup" ; 
+	systematicID[UnEd   ] = "UnEdo" ; 
 
 }
 

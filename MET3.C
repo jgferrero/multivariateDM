@@ -17,12 +17,12 @@ void MET3(){
 
 		for( int i = 0; i < nvariable_R; i++ ){
 
-			for( int j = 0; j < nprocess; j++ ){
-			//for( int j = alpha; j < omega+1; j++ ){ 
+			//for( int j = 0; j < nprocess; j++ ){
+			for( int j = alpha; j < omega+1; j++ ){ 
 
-				if (  j == DoubleEG2016E     || j == DoubleEG2016F     ) continue; 
-				if (  j == DoubleMuon2016E   || j == DoubleMuon2016F   ) continue; 
-				if (  j == SinglePhoton2016E || j == SinglePhoton2016F ) continue;
+				//if (  j == DoubleEG2016E     || j == DoubleEG2016F     ) continue; 
+				//if (  j == DoubleMuon2016E   || j == DoubleMuon2016F   ) continue; 
+				//if (  j == SinglePhoton2016E || j == SinglePhoton2016F ) continue;
 
 				/*if ( j == DoubleEG2016B     || j == DoubleEG2016C     || j == DoubleEG2016D     ) continue; 
 				if ( j == DoubleMuon2016B   || j == DoubleMuon2016C   || j == DoubleMuon2016D   ) continue; 
@@ -117,7 +117,7 @@ void MET3(){
 
 			for( int k = 0; k < nbinpT; k++ ){
 
-				h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016B][k][s] ); 
+				/*h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016B][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016C][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016D][k][s] );
 				//h_resol_pT_fit   [i][0][k][Zee][s] -> Add( h_resol_pT   [i][DoubleEG2016E][k][s] );
@@ -140,14 +140,14 @@ void MET3(){
 				h_resol_pT_fit   [i][1][k][Zee][s] -> Add( h_resol_pT   [i][SingleTop2_ee][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zee][s] -> Add( h_resol_pT   [i][SingleTop3_ee][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zee][s] -> Add( h_resol_pT   [i][SingleTop4_ee][k][s] ); 
-				h_resol_pT_fit   [i][1][k][Zee][s] -> Add( h_resol_pT   [i][SingleTop5_ee][k][s] ); 
+				h_resol_pT_fit   [i][1][k][Zee][s] -> Add( h_resol_pT   [i][SingleTop5_ee][k][s] );*/ 
 
 
 				h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016B][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016C][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016D][k][s] ); 
-				//h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016E][k][s] ); 
-				//h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016F][k][s] ); 
+				h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016E][k][s] ); 
+				h_resol_pT_fit   [i][0][k][Zmumu][s] -> Add( h_resol_pT   [i][DoubleMuon2016F][k][s] ); 
 				h_resol_pT_fit   [i][2][k][Zmumu][s] -> Add( h_resol_pT   [i][DY_mm          ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zmumu][s] -> Add( h_resol_pT   [i][TT_mm          ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Zmumu][s] -> Add( h_resol_pT   [i][TTsemiT_mm     ][k][s] ); 
@@ -169,7 +169,7 @@ void MET3(){
 				h_resol_pT_fit   [i][1][k][Zmumu][s] -> Add( h_resol_pT   [i][SingleTop5_mm  ][k][s] ); 
 
 
-				h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016B][k][s] ); 
+				/*h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016B][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016C][k][s] ); 
 				h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016D][k][s] ); 
 				//h_resol_pT_fit   [i][0][k][Gamma][s] -> Add( h_resol_pT   [i][SinglePhoton2016E][k][s] ); 
@@ -199,13 +199,13 @@ void MET3(){
 				h_resol_pT_fit   [i][1][k][Gamma][s] -> Add( h_resol_pT   [i][WGJets         ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Gamma][s] -> Add( h_resol_pT   [i][WGToLNuG       ][k][s] ); 
 				h_resol_pT_fit   [i][1][k][Gamma][s] -> Add( h_resol_pT   [i][TTGJets        ][k][s] ); 
-				h_resol_pT_fit   [i][1][k][Gamma][s] -> Add( h_resol_pT   [i][TGJets         ][k][s] ); 
+				h_resol_pT_fit   [i][1][k][Gamma][s] -> Add( h_resol_pT   [i][TGJets         ][k][s] );*/ 
 
 			}
 
 			for( int k = 0; k < nbinsumET; k++ ){
 
-				h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016B][k][s] ); 
+				/*h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016B][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016C][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016D][k][s] ); 
 				//h_resol_sumET_fit   [i][0][k][Zee][s] -> Add( h_resol_sumET   [i][DoubleEG2016E][k][s] ); 
@@ -228,14 +228,14 @@ void MET3(){
 				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][SingleTop2_ee][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][SingleTop3_ee][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][SingleTop4_ee][k][s] ); 
-				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][SingleTop5_ee][k][s] );
+				h_resol_sumET_fit   [i][1][k][Zee][s] -> Add( h_resol_sumET   [i][SingleTop5_ee][k][s] );*/
 
 
 				h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016B][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016C][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016D][k][s] ); 
-				//h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016E][k][s] ); 
-				//h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016F][k][s] ); 
+				h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016E][k][s] ); 
+				h_resol_sumET_fit   [i][0][k][Zmumu][s] -> Add( h_resol_sumET   [i][DoubleMuon2016F][k][s] ); 
 				h_resol_sumET_fit   [i][2][k][Zmumu][s] -> Add( h_resol_sumET   [i][DY_mm          ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zmumu][s] -> Add( h_resol_sumET   [i][TT_mm          ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Zmumu][s] -> Add( h_resol_sumET   [i][TTsemiT_mm     ][k][s] ); 
@@ -257,7 +257,7 @@ void MET3(){
 				h_resol_sumET_fit   [i][1][k][Zmumu][s] -> Add( h_resol_sumET   [i][SingleTop5_mm  ][k][s] ); 
 
 
-				h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016B][k][s] ); 
+				/*h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016B][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016C][k][s] ); 
 				h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016D][k][s] ); 
 				//h_resol_sumET_fit   [i][0][k][Gamma][s] -> Add( h_resol_sumET   [i][SinglePhoton2016E][k][s] ); 
@@ -287,13 +287,13 @@ void MET3(){
 				h_resol_sumET_fit   [i][1][k][Gamma][s] -> Add( h_resol_sumET   [i][WGJets         ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Gamma][s] -> Add( h_resol_sumET   [i][WGToLNuG       ][k][s] ); 
 				h_resol_sumET_fit   [i][1][k][Gamma][s] -> Add( h_resol_sumET   [i][TTGJets        ][k][s] ); 
-				h_resol_sumET_fit   [i][1][k][Gamma][s] -> Add( h_resol_sumET   [i][TGJets         ][k][s] );
+				h_resol_sumET_fit   [i][1][k][Gamma][s] -> Add( h_resol_sumET   [i][TGJets         ][k][s] );*/
 
 			}
 
 			for( int k = 0; k < nbinNVtx; k++ ){
 
-				h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016B][k][s] ); 
+				/*h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016B][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016C][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016D][k][s] ); 
 				//h_resol_NVtx_fit   [i][0][k][Zee][s] -> Add( h_resol_NVtx   [i][DoubleEG2016E][k][s] ); 
@@ -316,14 +316,14 @@ void MET3(){
 				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][SingleTop2_ee][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][SingleTop3_ee][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][SingleTop4_ee][k][s] ); 
-				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][SingleTop5_ee][k][s] );
+				h_resol_NVtx_fit   [i][1][k][Zee][s] -> Add( h_resol_NVtx   [i][SingleTop5_ee][k][s] );*/
 
 
 				h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016B][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016C][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016D][k][s] ); 
-				//h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016E][k][s] ); 
-				//h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016F][k][s] ); 
+				h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016E][k][s] ); 
+				h_resol_NVtx_fit   [i][0][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DoubleMuon2016F][k][s] ); 
 				h_resol_NVtx_fit   [i][2][k][Zmumu][s] -> Add( h_resol_NVtx   [i][DY_mm          ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zmumu][s] -> Add( h_resol_NVtx   [i][TT_mm          ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Zmumu][s] -> Add( h_resol_NVtx   [i][TTsemiT_mm     ][k][s] ); 
@@ -345,7 +345,7 @@ void MET3(){
 				h_resol_NVtx_fit   [i][1][k][Zmumu][s] -> Add( h_resol_NVtx   [i][SingleTop5_mm  ][k][s] );
 
 
-				h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016B][k][s] ); 
+				/*h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016B][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016C][k][s] ); 
 				h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016D][k][s] ); 
 				//h_resol_NVtx_fit   [i][0][k][Gamma][s] -> Add( h_resol_NVtx   [i][SinglePhoton2016E][k][s] ); 
@@ -375,7 +375,7 @@ void MET3(){
 				h_resol_NVtx_fit   [i][1][k][Gamma][s] -> Add( h_resol_NVtx   [i][WGJets         ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Gamma][s] -> Add( h_resol_NVtx   [i][WGToLNuG       ][k][s] ); 
 				h_resol_NVtx_fit   [i][1][k][Gamma][s] -> Add( h_resol_NVtx   [i][TTGJets        ][k][s] ); 
-				h_resol_NVtx_fit   [i][1][k][Gamma][s] -> Add( h_resol_NVtx   [i][TGJets         ][k][s] ); 
+				h_resol_NVtx_fit   [i][1][k][Gamma][s] -> Add( h_resol_NVtx   [i][TGJets         ][k][s] );*/ 
 
 			}
 
@@ -390,9 +390,10 @@ void MET3(){
 	float ySR[3][7][nkanal];   // { zentral, error, chi2 (or error-mc in data/mc) } x { bkg-substraction(=data), pure-mc(=mc), data/mc, JEC-up, JEC-do, UnEu, UnEd } x { Zee, Zmumu, Gamma }
 
 	for( int i = 0; i < nvariable_R; i++){
+	//	for( int i = 0; i < 1; i++){
 
 		for( int a = 0; a < 3; a++      ){   // histos
-		for( int k = 0; k < nkanal; k++ ){
+		for( int k = 1; k < 2; k++ ){//for( int k = 0; k < nkanal; k++ ){
 
 			h_SR[a][pT   ][k] = new TH1F( "h_SR_" + histoID[a] + "_" + parameterID[pT   ] + "_" + kanalID[k], "h_SR pT"   ,  nbinpT   , minpT   , maxpT    );
 			h_SR[a][sumET][k] = new TH1F( "h_SR_" + histoID[a] + "_" + parameterID[sumET] + "_" + kanalID[k], "h_SR sumET",  nbinsumET, minsumET, maxsumET );
@@ -408,7 +409,7 @@ void MET3(){
 
 			current_pT = minpT + (1.0*k+0.5)*(maxpT-minpT)/nbinpT; 
 
-			for( int m = 0; m < nkanal; m++ ){
+			for( int m = 1; m < 2; m++ ){//for( int m = 0; m < nkanal; m++ ){
 
 				if(  m == Gamma  &&  current_pT < 50.  ) { 
 
@@ -430,7 +431,7 @@ void MET3(){
 					GetResolution( m  , i, pT, k, ySR[0][6][m],    ySR[1][6][m],    ySR[2][6][m], "GJetsVoigtian", UnEd    );   // UnE-do
 
 
-			GetRatioValues( ySR[0][0][m], ySR[1][0][m], ySR[0][1][m], ySR[1][1][m], ySR[0][3][m], ySR[0][4][m], ySR[0][5][m], ySR[0][6][m], ySR[0][2][m], ySR[1][2][m], ySR[2][2][m] );
+					GetRatioValues( ySR[0][0][m], ySR[1][0][m], ySR[0][1][m], ySR[1][1][m], ySR[0][3][m], ySR[0][4][m], ySR[0][5][m], ySR[0][6][m], ySR[0][2][m], ySR[1][2][m], ySR[2][2][m] );
 
 					h_SR[0][pT][m] -> SetBinContent( k+1, ySR[0][0][m] );
 					h_SR[0][pT][m] -> SetBinError  ( k+1, ySR[1][0][m] );
@@ -438,6 +439,7 @@ void MET3(){
 					h_SR[1][pT][m] -> SetBinError  ( k+1, ySR[1][2][m] );
 					h_SR[2][pT][m] -> SetBinContent( k+1, 1.0          );
 					h_SR[2][pT][m] -> SetBinError  ( k+1, ySR[2][2][m] );     
+
 
 				}
 
@@ -458,7 +460,7 @@ void MET3(){
 
 		for( int k = 0; k < nbinNVtx; k++ ){
 
-			for( int m = 0; m < nkanal; m++ ){
+			for( int m = 1; m < 2; m++ ){//for( int m = 0; m < nkanal; m++ ){
 
 				GetResolution( m  , i, NVtx, k, ySR[0][0][m],    ySR[1][0][m],    ySR[2][0][m], "GJetsVoigtian", nominal );
 				GetResolution( m  , i, NVtx, k, ySR[0][1][m],    ySR[1][1][m],    ySR[2][1][m], "GJetsFromMC"  , nominal );
@@ -503,49 +505,49 @@ void MET3(){
 
 void PlotResolution( int ivar, int param ){
 
-	h_SR[0][param][0] -> SetMarkerStyle( 22 );   h_SR[0][param][0] -> SetMarkerSize( 1.2*h_SR[0][param][0]->GetMarkerSize() );
-	h_SR[0][param][1] -> SetMarkerStyle( 23 );   h_SR[0][param][1] -> SetMarkerSize( 1.2*h_SR[0][param][0]->GetMarkerSize() );
-	h_SR[0][param][2] -> SetMarkerStyle( 21 );
+	//h_SR[0][param][0] -> SetMarkerStyle( 22 );   h_SR[0][param][0] -> SetMarkerSize( 1.2*h_SR[0][param][0]->GetMarkerSize() );
+	h_SR[0][param][1] -> SetMarkerStyle( 23 );   //h_SR[0][param][1] -> SetMarkerSize( 1.2*h_SR[0][param][0]->GetMarkerSize() );
+	//h_SR[0][param][2] -> SetMarkerStyle( 21 );
 
-	h_SR[1][param][0] -> SetMarkerStyle( 22 );   h_SR[1][param][0] -> SetMarkerSize( 1.2*h_SR[1][param][0]->GetMarkerSize() );
-	h_SR[1][param][1] -> SetMarkerStyle( 23 );   h_SR[1][param][1] -> SetMarkerSize( 1.2*h_SR[1][param][0]->GetMarkerSize() );
-	h_SR[1][param][2] -> SetMarkerStyle( 21 );
+	//h_SR[1][param][0] -> SetMarkerStyle( 22 );   h_SR[1][param][0] -> SetMarkerSize( 1.2*h_SR[1][param][0]->GetMarkerSize() );
+	h_SR[1][param][1] -> SetMarkerStyle( 23 );   //h_SR[1][param][1] -> SetMarkerSize( 1.2*h_SR[1][param][0]->GetMarkerSize() );
+	//h_SR[1][param][2] -> SetMarkerStyle( 21 );
 
 
-	h_SR[0][param][0] -> SetMarkerColor( kBlue );
+	//h_SR[0][param][0] -> SetMarkerColor( kBlue );
 	h_SR[0][param][1] -> SetMarkerColor( kRed  );
-	h_SR[0][param][2] -> SetMarkerColor( kGreen);
+	//h_SR[0][param][2] -> SetMarkerColor( kGreen);
 
-	h_SR[1][param][0] -> SetMarkerColor( kBlue );
+	//h_SR[1][param][0] -> SetMarkerColor( kBlue );
 	h_SR[1][param][1] -> SetMarkerColor( kRed  );
-	h_SR[1][param][2] -> SetMarkerColor( kGreen);
+	//h_SR[1][param][2] -> SetMarkerColor( kGreen);
 
 	
-	h_SR[0][param][0] -> SetLineColor( kBlue  );
+	//h_SR[0][param][0] -> SetLineColor( kBlue  );
 	h_SR[0][param][1] -> SetLineColor( kRed   );
-	h_SR[0][param][2] -> SetLineColor( kGreen );
+	//h_SR[0][param][2] -> SetLineColor( kGreen );
 
-	h_SR[1][param][0] -> SetLineColor( kBlue  );
+	//h_SR[1][param][0] -> SetLineColor( kBlue  );
 	h_SR[1][param][1] -> SetLineColor( kRed   );
-	h_SR[1][param][2] -> SetLineColor( kGreen );
+	//h_SR[1][param][2] -> SetLineColor( kGreen );
 
 
-	h_SR[0][param][0] -> SetFillStyle(0);
+	//h_SR[0][param][0] -> SetFillStyle(0);
 	h_SR[0][param][1] -> SetFillStyle(0);
-	h_SR[0][param][2] -> SetFillStyle(0);
+	//h_SR[0][param][2] -> SetFillStyle(0);
 
-	h_SR[1][param][0] -> SetFillStyle(0);
+	//h_SR[1][param][0] -> SetFillStyle(0);
 	h_SR[1][param][1] -> SetFillStyle(0);
-	h_SR[1][param][2] -> SetFillStyle(0);
+	//h_SR[1][param][2] -> SetFillStyle(0);
 
 
-	h_SR[2][param][0] -> SetLineColor(11);
+	//h_SR[2][param][0] -> SetLineColor(11);
 	h_SR[2][param][1] -> SetLineColor(11);
-	h_SR[2][param][2] -> SetLineColor(11);
+	//h_SR[2][param][2] -> SetLineColor(11);
 
-	h_SR[2][param][0] -> SetFillColor(11);
+	//h_SR[2][param][0] -> SetFillColor(11);
 	h_SR[2][param][1] -> SetFillColor(11);
-	h_SR[2][param][2] -> SetFillColor(11);
+	//h_SR[2][param][2] -> SetFillColor(11);
 
 	//----------------------------------------------------------
 
@@ -566,17 +568,17 @@ void PlotResolution( int ivar, int param ){
 
 	pad2 -> cd();
 
-	h_SR[0][param][0] -> SetTitle("");
+	h_SR[0][param][Zmumu] -> SetTitle("");
 
-	h_SR[0][param][0] -> SetStats(false);
+	h_SR[0][param][Zmumu] -> SetStats(false);
 
- 	SetAxis( h_SR[0][param][0], "", sigma_variable[ivar], 1.5, 1.0 );
+ 	SetAxis( h_SR[0][param][Zmumu], "", sigma_variable[ivar], 1.5, 1.0 );
 
-	( ivar < 2 )  ?  h_SR[0][param][0] -> GetYaxis() -> SetRangeUser(0., 40.)  :  h_SR[0][param][0] -> GetYaxis() -> SetRangeUser(0., 2.5);
+	( ivar < 2 )  ?  h_SR[0][param][Zmumu] -> GetYaxis() -> SetRangeUser(0., 40.)  :  h_SR[0][param][Zmumu] -> GetYaxis() -> SetRangeUser(0., 2.5);
 
-	h_SR[0][param][0] -> Draw("e"      );	
-	h_SR[0][param][1] -> Draw("e, same");
-	h_SR[0][param][2] -> Draw("e, same");
+	//h_SR[0][param][0] -> Draw("e"      );	
+	h_SR[0][param][Zmumu] -> Draw("e");//, same");
+	//h_SR[0][param][2] -> Draw("e, same");
 
 	DrawLatex( 61, 0.100, 0.945, 0.050, 11, "CMS"                                             );
 
@@ -594,9 +596,9 @@ void PlotResolution( int ivar, int param ){
 
 	TheLegend -> SetTextSize(0.050);
 
-	TheLegend -> AddEntry( h_SR[0][param][0], kanalIDfancy[0], "lp" ); 
-	TheLegend -> AddEntry( h_SR[0][param][1], kanalIDfancy[1], "lp" ); 
-	TheLegend -> AddEntry( h_SR[0][param][2], kanalIDfancy[2], "lp" ); 
+	//TheLegend -> AddEntry( h_SR[0][param][0], kanalIDfancy[0], "lp" ); 
+	TheLegend -> AddEntry( h_SR[0][param][Zmumu], kanalIDfancy[Zmumu], "lp" ); 
+	//TheLegend -> AddEntry( h_SR[0][param][2], kanalIDfancy[2], "lp" ); 
 
 	TheLegend -> Draw();
 
@@ -604,28 +606,32 @@ void PlotResolution( int ivar, int param ){
 
 	pad1 -> cd();
 
-	h_SR[1][param][0] -> SetTitle("");
-	h_SR[1][param][0] -> SetStats(false);   // it has priority over the gStyle->SetOptStats option
+	h_SR[1][param][Zmumu] -> SetTitle("");
+	h_SR[1][param][Zmumu] -> SetStats(false);   // it has priority over the gStyle->SetOptStats option
 
- 	SetAxis( h_SR[1][param][0], parameterIDfancy[param], "data / MC ", 1.4, 0.5 );
+ 	SetAxis( h_SR[1][param][Zmumu], parameterIDfancy[param], "data / MC ", 1.4, 0.5 );
 
-	h_SR[1][param][0] -> GetYaxis() -> SetRangeUser(0.85, 1.15);
+	h_SR[1][param][Zmumu] -> GetYaxis() -> SetRangeUser(0.85, 1.15);
       	//( ivar < 2 )  ?  h_SR[1][param][0] -> GetYaxis() -> SetRangeUser(0.85, 1.15)  :  h_SR[1][param][0] -> GetYaxis() -> SetRangeUser(0.5, 2.0);
 
-	h_SR[1][param][0] -> Draw("ep"      );
-	h_SR[2][param][0] -> Draw("e2, same");
+	h_SR[1][param][Zmumu] -> Draw("ep"      );
+	h_SR[2][param][Zmumu] -> Draw("e2, same");
+	h_SR[1][param][Zmumu] -> Draw("ep, same");
+
+	//h_SR[1][param][0] -> Draw("ep      ");
+	//h_SR[2][param][0] -> Draw("e2, same");
 	//h_SR[2][param][1] -> Draw("e2, same");
 	//h_SR[2][param][2] -> Draw("e2, same");
-	h_SR[1][param][1] -> Draw("ep, same");
-	h_SR[1][param][2] -> Draw("ep, same");
-	h_SR[1][param][0] -> Draw("ep, same");
+	//h_SR[1][param][1] -> Draw("ep, same");
+	//h_SR[1][param][2] -> Draw("ep, same");
+	//h_SR[1][param][0] -> Draw("ep, same");
 
 	pad1 -> RedrawAxis();
 
 	//----------------------------------------------------------
 
-	c -> SaveAs( "resol/" + variableID_R[ivar] + "_" + parameterID[param] + ".pdf" ); 
-	c -> SaveAs( "resol/" + variableID_R[ivar] + "_" + parameterID[param] + ".png" ); 
+	c -> SaveAs( "/afs/cern.ch/user/j/jgarciaf/www/figures/MET_" + www + "/nTrueInt/resol/" + variableID_R[ivar] + "_" + parameterID[param] + ".pdf" ); 
+	c -> SaveAs( "/afs/cern.ch/user/j/jgarciaf/www/figures/MET_" + www + "/nTrueInt/resol/" + variableID_R[ivar] + "_" + parameterID[param] + ".png" ); 
 
 }
 
@@ -822,8 +828,8 @@ void GetResolution( int ch, int whichvar, int parameter, int ibin, float& resol,
 
 	if( syst == nominal ){
 
-		mycanvas -> SaveAs( Form( "fit/" + kanalID[ch] + "_" + variableID_R[ivar] + "_" + parameterID[parameter] +  "_%dto%d.pdf", low, up ) );
-		mycanvas -> SaveAs( Form( "fit/" + kanalID[ch] + "_" + variableID_R[ivar] + "_" + parameterID[parameter] +  "_%dto%d.png", low, up ) );
+		mycanvas -> SaveAs( Form( "/afs/cern.ch/user/j/jgarciaf/www/figures/MET_" + www + "/nTrueInt/fit/" + kanalID[ch] + "_" + variableID_R[ivar] + "_" + parameterID[parameter] +  "_%dto%d.pdf", low, up ) );
+		mycanvas -> SaveAs( Form( "/afs/cern.ch/user/j/jgarciaf/www/figures/MET_" + www + "/nTrueInt/fit/" + kanalID[ch] + "_" + variableID_R[ivar] + "_" + parameterID[parameter] +  "_%dto%d.png", low, up ) );
 	
 	}
 
